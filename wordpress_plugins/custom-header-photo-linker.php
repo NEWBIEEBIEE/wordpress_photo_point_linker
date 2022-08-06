@@ -12,13 +12,70 @@
 ?>
 
 <?php
+
+register_activation_hook(__FILE__, 'chpla_install');// 有効化の際に一度だけ処理
+register_uninstall_hook ( __FILE__, 'chpla_delete_data' );// 無効化の際に一度だけ処理
+
+
 //add_action('init', 'CustomHeaderPhotoLinker::init');
 add_action(
-    'widgets_init', 
-     create_function('', 'return register_widget("CustomHeaderPhotoLinker");')   
+    'wp_loaded', 
+     //create_function('', 'return register_widget("CustomHeaderPhotoLinker");')   
+     new CustomHeaderPhotoLinker()
 );
 
-class CustomHeaderPhotoLinker
+
+add_action('widgets_init',  function(){register_widget('CustomHeaderPhotoLinkerWidget');});
+
+/* 初回読み込み時にテーブル作成 */
+function dejimono_install(){
+    global $wpdb;
+    
+    $table = $wpdb->prefix.'dejimono_test';
+    $charset_collate = $wpdb->get_charset_collate();
+
+    if ($wpdb->get_var("show tables like '$table'") != $table) {
+        
+        $sql = "CREATE TABLE  {$table} (
+            query_num int, 
+            file_name VARCHAR(400),
+            item1 VARCHAR(30),
+            item2 VARCHAR(30),
+            item3 VARCHAR(30)
+            ) $charset_collate;";
+        
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+    }
+}
+
+/* プラグイン削除時にはテーブルを削除 */
+function dejimono_delete_data()
+{
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'dejimono_test';
+        $sql = "DROP TABLE IF EXISTS {$table_name}";
+        $wpdb->query($sql);
+}
+
+class CustomHeaderPhotoLinkerAdmin{
+    /* 管理画面表示 */
+    function chpla_CategoryCreatorMenu()
+    {
+        add_menu_page('CustomHeaderPhotoLinker Plugin','PhotoLinker','administrator', __FILE__, 'chpla_CategorySettingsPage' , 'dashicons-buddicons-replies');
+    }
+    
+    /* 管理画面表示 */
+    function chpla_CategorySettingsPage() {
+        echo 'hello world';
+        echo plugin_dir_path( __FILE__ );
+    }
+}
+
+
+    
+
+class CustomHeaderPhotoLinker 
 {
 
     function __construct()
@@ -34,17 +91,18 @@ class CustomHeaderPhotoLinker
         }
     }
 
-    public function action(){
+    function action(){
       // アクションに対するコールバック関数その物
     }
 
-    public function filter(){
+    function filter(){
       // コールバック関数に付随する処理
     }
 
-    public function widget(){
+    function widget(){
         $javascript_EOL = <<<CANVAS
         <style>
+        /* 選択された画像を塗りつぶして分かるようにする */
         .active{
             /*content: '';
             position: absolute;
@@ -59,6 +117,8 @@ class CustomHeaderPhotoLinker
         </style>
         <script type="text/javascript">
         var url = location.href;
+
+        //画面がカスタマイザーによる処理なのかでモード変更 urlではなく　bodyタグのクラスによる認識に変えること
         var custom_mode = false;
     
         if(url.includes('customize'))
@@ -68,10 +128,10 @@ class CustomHeaderPhotoLinker
         }
         var blockElems = ['ADDRESS', 'BLOCKQUOTE', 'CENTER', 'DIR', 'DIV', 'DL', 'FIELDSET', 'FORM', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'HR', 'ISINDEX', 'MENU', 'NOFRAMES', 'NOSCRIPT', 'OL', 'P', 'PRE', 'TABLE', 'UL', 'LI', 'OL', 'ARTICLE', 'FIGURE'];
     
-        var testImage = document.getElementById('main-feat-img');// 配列に変えなければならない
-        //var testImages = [];//　貼り付け先の画像Id 文字列から要素を呼び起こして配列に格納する
+        var targetImage = document.getElementById('main-feat-img');// 配列に変えなければならない
+        //var targetImages = [];//　貼り付け先の画像Id 文字列から要素を呼び起こして配列に格納する
         var idCanvas = document.getElementById('maps');// 配列に変えなければならない
-        //var idCanvasArr = [];// 上記のtestImagesに設定するCanvasを格納 文字列から要素を呼び起こして配列に格納する
+        //var idCanvasArr = [];// 上記のtargetImagesに設定するCanvasを格納 文字列から要素を呼び起こして配列に格納する
         var style = window.getComputedStyle(idCanvas);// 配列に変えなければならない
         //var canvasStyles = [];//　上記のidCanvasに格納されている各配列のスタイルを取得 文字列から要素を呼び起こして配列に格納する
     
@@ -81,7 +141,8 @@ class CustomHeaderPhotoLinker
         var arrTField = new Array(indexNum);
         var arrShapes = new Array(indexNum);
         var canvasNum = 5;
-        var arrCanvas = new Array(canvasNum);// 画像までのパス文字列
+        //var arrCanvas = new Array(canvasNum);// 画像までのパスを示す文字列　非対応
+        var oneCanvas = "";
         var arrElemCanvas = new Array(canvasNum);
         var arrPathCanvas = [];// パスを保存する2次配列
     
@@ -110,15 +171,15 @@ class CustomHeaderPhotoLinker
         if (idCanvas.getContext && idCanvas.getContext('2d').createImageData) {
             testContext = idCanvas.getContext('2d');
         }
-        // img要素からCanvasに画像を転送
-        function resizePhoto(testImage)
+        // img要素からCanvasに画像を転送(ロード時＆リサイズ時)
+        function resizePhoto(targetImage)
         {
-            //testImage = document.getElementById('main-feat-img');
-            if ( testImage.complete ) {
-                width = testImage.naturalWidth ;
-                height = testImage.naturalHeight ;
-                //var width = testImage.width();
-                //var height = testImage.height();
+            //targetImage = document.getElementById('main-feat-img');
+            if ( targetImage.complete ) {
+                width = targetImage.naturalWidth ;
+                height = targetImage.naturalHeight ;
+                //var width = targetImage.width();
+                //var height = targetImage.height();
                 if(lastWidth > 0 || lastHeight > 0)
                 {
                     pointX = pointX * ( parseFloat(style.width.replace("px","")) / lastWidth );
@@ -146,12 +207,12 @@ class CustomHeaderPhotoLinker
             }
             loadCanvas();
         }
-        // 画像を取得し、再度貼り付け治す（配列に処理を書き換えること）
+        // リサイズ対応 画像を取得し、再度貼り付け治す（配列に処理を書き換えること）
         function putImageToCanvas(width, height) {
-            testImage = document.getElementById('main-feat-img');
-            testContext.drawImage(testImage, 0, 0, width, height);
+            targetImage = document.getElementById('main-feat-img');
+            testContext.drawImage(targetImage, 0, 0, width, height);
         }
-        // 再描写＆一番最初の描写
+        //　リサイズ対応　　一つのキャンバスにつき一回は必要な処理 再描写＆一番最初の描写
         function loadCanvas(){
             for(var i = 0; i < arrShapes.length; i++){
                 // テキストフィールドから座標を取得
@@ -160,7 +221,7 @@ class CustomHeaderPhotoLinker
                 loadShapePositions(parseFloat(arrShapes[i].split(',')[0]) * parseFloat(style.width.replace("px","")), (parseFloat(arrShapes[i].split(',')[1])*parseFloat(style.height.replace("px",""))));
             }
         }
-        
+        //　ユーザー側で必要な処理　クリック時にリンク先に飛ばす
         function mouseDownListner(e) {
             // 要素の短径を取得し、全体からのマウス位置に減算すると要素内でのマウスクリック位置
             var rect = e.target.getBoundingClientRect();
@@ -218,7 +279,7 @@ class CustomHeaderPhotoLinker
                 testContext.closePath(); // サブパス閉じる
             }
         }
-        // デフォルト値 初期設定
+        // デフォルト値 初期設定　hidden要素取得
         function loadPointPositions(){
             // リンク情報
             lnk_elems = document.getElementsByClassName("point_link");// widgetに追加するhidden input
@@ -233,8 +294,8 @@ class CustomHeaderPhotoLinker
             // 此処に追加
             // カスタマイザーのテキストフィールド上から反映
             for(var i = 0; i < arrShapes.length; i++){
-                arrShapes[i] = loc_points[i].value;
-                arrTField[i] = lnk_elems[i].value;
+                arrShapes[i] = loc_points[i].value;//クラスの集合から取得
+                arrTField[i] = lnk_elems[i].value;//クラスの集合から取得　ここ以外(描画以外)で使う
                 if(arrShapes[i].includes(','))
                 loadShapePositions(parseFloat(arrShapes[i].split(',')[0]) * parseFloat(style.width.replace("px","")) , (parseFloat(arrShapes[i].split(',')[1])*parseFloat(style.height.replace("px",""))));
             }
@@ -284,7 +345,7 @@ class CustomHeaderPhotoLinker
     
                 }
             }
-            return addedPath;
+            return addedPath;//関数のネスティング(再起処理)で全部の文字列が返る
         }
     
         // 要素から該当タグの要素取得
@@ -309,78 +370,83 @@ class CustomHeaderPhotoLinker
             return elemBox;
         }
     
-        // 初期値入力(idやclassから該当のタグを取得する)
+        // 文字列に入っている該当の要素から要素取得
+        // canvas要素を追加する
         function initCanvasField(){
             const regexpID = /\{\$id:(.+)\}/g;
             const regexpCLS = /\{\$cls:(.+)\[?(\d*)\]?\}/g;
             const regexpTAG = /\{\$tag:(.+)\[?(\d*)\]?\}/g;
             //const regexpSEC = /=>/g;
     
-            for(var i = 0; i < arrCanvas.length; i++){
-                var u = 0;
-                arrCanvas[i] = window.parent.document.getElementById("_customize-input-my_theme_header_photo_id_class" + (i+1)).value;
-                // 上記に対してCANVASタグを追加する
-                //まず対象を取得する
-                //var arrExps = new Array();
-                //if(arrCanvas[i].lastIndexOf('=>') > 0)
-                //{
-                //	while(arrExps=regexpSEC.exec(arrCanvas[i])!=null{
-                //		arrPathCanvas[i][u++] = arrExps.index; // インデックスを保存
-                //	}	
-                //}
-                //for(var q = 0; q < arrPathCanvas[i].length; q++){
-                //}
-                var arrPathCanvas = [];
-                arrPathCanvas[i] = arrCanvas[i].split("=>");
-                var targetROOT = arrPathCanvas[i][0];
-                var targetElem;
-                var candyElements;
-                for(var q = 0; q < arrPathCanvas[i].length; q++){
-                    var idMatch = regexpID.test(targetROOT);
-                    var clsMatch = regexpCLS.test(targetROOT);
-                    var tagMatch = regexpTAG.test(targetROOT);
-                    if(idMatch)
+            //for(var i = 0; i < arrCanvas.length; i++){
+            var u = 0;
+            //arrCanvas[i] = window.parent.document.getElementById("_customize-input-my_theme_header_photo_id_class" + (i+1)).value;
+            
+            oneCanvas = window.parent.document.getElementById();
+            // 上記に対してCANVASタグを追加する
+            //まず対象を取得する
+            //var arrExps = new Array();
+            //if(arrCanvas[i].lastIndexOf('=>') > 0)
+            //{
+            //	while(arrExps=regexpSEC.exec(arrCanvas[i])!=null{
+            //		arrPathCanvas[i][u++] = arrExps.index; // インデックスを保存
+            //	}	
+            //}
+            //for(var q = 0; q < arrPathCanvas[i].length; q++){
+            //}
+            var arrPathCanvas = [];
+            //arrPathCanvas[i] = arrCanvas[i].split("=>");
+            arrPathCanvas = oneCanvas.split("=>");// 一つ一つの親子要素について配列順に入れなおす
+            var targetROOT = arrPathCanvas[0];// 一番最初の親要素
+            var targetElem;
+            var candyElements;
+            for(var q = 0; q < arrPathCanvas[i].length; q++){
+                var idMatch = regexpID.test(targetROOT);
+                var clsMatch = regexpCLS.test(targetROOT);
+                var tagMatch = regexpTAG.test(targetROOT);
+                if(idMatch)
+                {
+                    let idWord = regexpID.exec(targetROOT);
+                    targetElem = document.getElementById(idWord[1]);// 正規表現の二つ目の要素が()に入っている値を取得
+                }else if(clsMatch){
+                    let classWord = regexpCLS.exec(targetROOT);
+                    candyElements = document.getElementsByClassName(classWord[1]);
+                    if(idWord[2] != "")
                     {
-                        let idWord = regexpID.exec(targetROOT);
-                        targetElem = document.getElementById(idWord[1]);
-                    }else if(clsMatch){
-                        let classWord = regexpCLS.exec(targetROOT);
-                        candyElements = document.getElementsByClassName(classWord[1]);
-                        if(idWord[2] != "")
-                        {
-                            targetElem = candyElements[parseInt(idWord[2])];
-                        }else{
-                            targetElem = candyElements;
-                        }
-                    }else if(tagMatch){
-                        var arrTagName = [];
-                        var remaingIndex = 0;
-                        for(var v = q; v < arrPathCanvas[i].length; v++)
-                        { // タグの配列に直す
-                            // 正規表現でタグ名取得する
-                            arrTagName[remaingIndex] = arrPathCanvas[v];
-                            remaingIndex++;
-                        }
-                        targetElem = targetTAGChildParser(targetElem, arrTagName, "IMG");
-                        break;
+                        targetElem = candyElements[parseInt(idWord[2])];//　IDからとれる場合は、さかのぼってクラスの配列から取得
+                    }else{
+                        targetElem = candyElements;
                     }
-                    targetROOT = arrPathCanvas[i][q+1];// 次の要素をセット
+                }else if(tagMatch){
+                    var arrTagName = [];
+                    var remaingIndex = 0;
+                    for(var v = q; v < arrPathCanvas[i].length; v++)
+                    { // タグの配列に直す
+                        // 正規表現でタグ名取得する
+                        arrTagName[remaingIndex] = arrPathCanvas[v];
+                        remaingIndex++;
+                    }
+                    targetElem = targetTAGChildParser(targetElem, arrTagName, "IMG");
+                    break;
                 }
-    
-                // 上記で取得したIMGタグについてCANVASタグを設定
-                var installed = targetElem.parentNode;
-                var new_canvas = document.createElement('canvas');
-                new_canvas.id = "maps_" + i;
-                new_canvas.innerHTML = installed.innerHTML;
-                targetElem.before(new_canvas);
-                targetElem.remove();
+                targetROOT = arrPathCanvas[i][q+1];// 次の子の要素をセット　この時にtargetElemには目的の子要素までの実際の要素が入っている
             }
+
+            // 上記で取得したIMGタグについてCANVASタグを設定
+            var installed = targetElem.parentNode;
+            var new_canvas = document.createElement('canvas');
+            //new_canvas.id = "maps";
+            new_canvas.id = "icons_maps";
+            new_canvas.innerHTML = installed.innerHTML;
+            targetElem.before(new_canvas);
+            targetElem.remove();
+            //}
         }
     
     
     
         idCanvas.addEventListener('load', function(){
-            resizePhoto(testImage);
+            resizePhoto(targetImage);
             //loadPointPositions();
             loadCanvas();
         }, false);
@@ -394,7 +460,7 @@ class CustomHeaderPhotoLinker
         }, false);
     
         window.addEventListener('resize', function(){
-            resizePhoto(testImage);
+            resizePhoto(targetImage);
             //loadPointPositions();
     
             //これは場所の座標のテキストフィールド　全てに実施
@@ -415,7 +481,7 @@ class CustomHeaderPhotoLinker
             // 画像要素キャンパスの追加　一番最初に必要
             initCanvasField();
     
-    /*
+    /*　複数の画像に対して実装する予定だった。カールセル対応
             const regexpSEC = /=>/g;
     
             for(var i = 0; i < arrCanvas.length; i++){
@@ -466,6 +532,7 @@ class CustomHeaderPhotoLinker
             }
     
             //指定する(画像領域)
+            // カスタマイザー要素に該当の座標を記述する(Canvasをクリックした際に最後にフォーカスを当てたテキストボックスに記述されるためのモノ)
             for(var i = 0; i < arrImgField.length; i++){
                 arrImgField[i] = window.parent.document.getElementById('_customize-input-my_theme_header_photo_id_class' + (i+1)); // iframeしているときは外側に走査走らないためwindow指定
                 arrImgField[i].addEventListener('focus', function(e) {
@@ -484,6 +551,7 @@ class CustomHeaderPhotoLinker
         }, false);
     
         //https://note.com/fuminon3745/n/n33184d12ce30
+        // クリックした際にリンクへと飛ばす
         document.body.onclick = (e) => {
             if(imgFieldOnOff){
                 // デフォルトのイベントをキャンセル
@@ -573,6 +641,10 @@ class CustomHeaderPhotoLinker
     echo $javascript_EOL;
     }
 
-} // end of class
+ // end of class
 
+
+class CustomHeaderPhotoLinkerWidget extends WP_Widget{
+
+} 
 ?>
