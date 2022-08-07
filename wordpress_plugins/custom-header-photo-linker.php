@@ -162,10 +162,15 @@ class CustomHeaderPhotoLinker
         // 対象画像領域指定オンオフ
         var imgFieldOnOff = false;
     
+        // 2022追加 追加canvasについてid取得用
+        var icons_map = null;
         // CANVAS範囲配列初期設定
-        for(var i = 0 ; i < canvasNum; i++){
+        //for(var i = 0 ; i < canvasNum; i++){
     
-        }
+        //}
+        // デフォルトのマウスポインター値
+        var defMousePointer = body.style.cursor;
+        var mouseDownOnCanvasIconBool = false;
     
         // CANVASの初期設定の写経　全部のCANVASに対して
         if (idCanvas.getContext && idCanvas.getContext('2d').createImageData) {
@@ -174,7 +179,7 @@ class CustomHeaderPhotoLinker
         // img要素からCanvasに画像を転送(ロード時＆リサイズ時)
         function resizePhoto(targetImage)
         {
-            //targetImage = document.getElementById('main-feat-img');
+            targetImage = document.getElementById('main-feat-img');
             if ( targetImage.complete ) {
                 width = targetImage.naturalWidth ;
                 height = targetImage.naturalHeight ;
@@ -223,21 +228,30 @@ class CustomHeaderPhotoLinker
         }
         //　ユーザー側で必要な処理　クリック時にリンク先に飛ばす
         function mouseDownListner(e) {
+            /*
             // 要素の短径を取得し、全体からのマウス位置に減算すると要素内でのマウスクリック位置
             var rect = e.target.getBoundingClientRect();
             //座標取得
             var mouseX1 = e.clientX - rect.left;
             var mouseY1 = e.clientY - rect.top;
-            // 押下した座標が図形だった場合、リンク先に飛ぶ
+            // 押下した座標が図形だった場合、リンク先に飛ぶ　±20は図形の大きさ
             for(var i = 0; i < arrShapes.length; i++){
                 if(arrShapes[i] && arrShapes[i].includes(',')){
                     if (mouseX1 > parseFloat(arrShapes[i].split(',')[0]) * parseFloat(style.width.replace("px",""))-20 && mouseX1 < parseFloat(arrShapes[i].split(',')[0]) * parseFloat(style.width.replace("px","")) + 20) {
                         if (mouseY1 > parseFloat(arrShapes[i].split(',')[1]) * parseFloat(style.height.replace("px",""))-20 && mouseY1 < parseFloat(arrShapes[i].split(',')[1]) * parseFloat(style.height.replace("px","")) + 20) {
+
+
+                            // リンクに飛ばす処理
                             if(lnk_elems[i].value)
-                            location.href = lnk_elems[i].value;
+                            location.href = lnk_elems[i].value;// canvas内の図形のリンクに飛ばす
                         }
                     }
                 }
+            }*/
+            if(mouseDownOnCanvasIconBool){
+                // リンクに飛ばす処理
+                if(lnk_elems[i].value)
+                location.href = lnk_elems[i].value;// canvas内の図形のリンクに飛ばす
             }
         }
     
@@ -286,10 +300,9 @@ class CustomHeaderPhotoLinker
             // XY座標
             var loc_points = document.getElementsByClassName("location_point");// widgetに追加するhidden input
             //	Canvas情報(どのキャンバスにするか選択) & CANVASのIDにて要素取得
-            for(var i = 0; i < canvasNum; i++){
-                "maps_" + i;
-    
-            }
+            //for(var i = 0; i < canvasNum; i++){
+            //    "maps_" + i;
+            //}
     
             // 此処に追加
             // カスタマイザーのテキストフィールド上から反映
@@ -443,11 +456,60 @@ class CustomHeaderPhotoLinker
             //}
         }
     
+        // マウスオーバー処理
+        document.addEventListener("mouseover", function(event) {
+            console.log(event.target); //event.targetの部分がマウスオーバーされている要素になっています
+            
+            if(icons_map == event.target)
+            {
+                // 該当座標でマウスポインターの変換
+
+                // mouseDownListenerと同じ処理 そっちを削除するべきかもしれない
+                // 要素の短径を取得し、全体からのマウス位置に減算すると要素内でのマウスクリック位置
+                var rect = e.target.getBoundingClientRect();
+                //座標取得
+                var mouseX1 = e.clientX - rect.left;
+                var mouseY1 = e.clientY - rect.top;
+                // 押下した座標が図形だった場合、リンク先に飛ぶ　±20は図形の大きさ
+                for(var i = 0; i < arrShapes.length; i++){
+                    if(arrShapes[i] && arrShapes[i].includes(',')){
+                        if (mouseX1 > parseFloat(arrShapes[i].split(',')[0]) * parseFloat(style.width.replace("px",""))-20 && mouseX1 < parseFloat(arrShapes[i].split(',')[0]) * parseFloat(style.width.replace("px","")) + 20) {
+                            if (mouseY1 > parseFloat(arrShapes[i].split(',')[1]) * parseFloat(style.height.replace("px",""))-20 && mouseY1 < parseFloat(arrShapes[i].split(',')[1]) * parseFloat(style.height.replace("px","")) + 20) {
+                                
+                                mouseDownOnCanvasIconBool = true;
+
+                                if(icons_map != null)
+                                {
+                                    icons_map.style.cursor = "pointer";
+                                }
     
+                                // リンクに飛ばす処理
+                                //if(lnk_elems[i].value)
+                                //location.href = lnk_elems[i].value;// canvas内の図形のリンクに飛ばす
+                            }else{ // 図形を指していない場合はマウスポインターを元に戻す
+                                icons_map.style.cursor = defMousePointer;
+                                mouseDownOnCanvasIconBool = false;
+                            }
+                        }
+                    }
+                }
+            }
+
+        });    
     
         idCanvas.addEventListener('load', function(){
             resizePhoto(targetImage);
             //loadPointPositions();
+            // 上記のマウスオーバー関数
+            icons_map = document.getElementById("icons_maps");
+
+            if (icons_map === null){
+                // 要素が存在しない場合の処理
+            } else {
+                // 要素が存在する場合の処理
+            }
+
+
             loadCanvas();
         }, false);
     
@@ -547,11 +609,11 @@ class CustomHeaderPhotoLinker
             loadPointPositions();
             loadCanvas();
             if(!custom_mode)
-            idCanvas.addEventListener("mousedown", mouseDownListner, false);
+            idCanvas.addEventListener("mousedown", mouseDownListner, false);// canvas内のリンクに飛ばす
         }, false);
     
         //https://note.com/fuminon3745/n/n33184d12ce30
-        // クリックした際にリンクへと飛ばす
+        // 
         document.body.onclick = (e) => {
             if(imgFieldOnOff){
                 // デフォルトのイベントをキャンセル
