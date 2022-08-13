@@ -88,7 +88,6 @@ class CustomHeaderPhotoLinker
             add_action('wp_loaded', array($this, 'action'));// 全てが読み終わった後
             add_filter('wp_headers', array($this, 'filter'));//
 */
-            add_action( 'wp_head', 'hiddenInformations' );
         }
     }
 
@@ -98,57 +97,6 @@ class CustomHeaderPhotoLinker
 
     function filter(){
       // コールバック関数に付随する処理
-    }
-
-    function hiddenInformation() {
-
-        // 場所と画像のファイル、リンク先
-        echo <<<EOF
-      
-      <div class="notice notice-info is-dismissible">
-        <input type="hidden" name="example" value="{$location[0]}">
-        <input type="hidden" name="example" value="{$photo_path[0]}">
-        <input type="hidden" name="example" value="{$link[0]}">
-        <input type="hidden" name="example" value="{$tateyoko[0]}">
-        <input type="hidden" name="example" value="{$location[1]}">
-        <input type="hidden" name="example" value="{$photo_path[1]}">
-        <input type="hidden" name="example" value="{$link[1]}">
-        <input type="hidden" name="example" value="{$tateyoko[1]}">
-        <input type="hidden" name="example" value="{$location[2]}">
-        <input type="hidden" name="example" value="{$photo_path[2]}">
-        <input type="hidden" name="example" value="{$link[2]}">
-        <input type="hidden" name="example" value="{$tateyoko[2]}">
-        <input type="hidden" name="example" value="{$location[3]}">
-        <input type="hidden" name="example" value="{$photo_path[3]}">
-        <input type="hidden" name="example" value="{$link[3]}">
-        <input type="hidden" name="example" value="{$tateyoko[3]}">
-        <input type="hidden" name="example" value="{$location[4]}">
-        <input type="hidden" name="example" value="{$photo_path[4]}">
-        <input type="hidden" name="example" value="{$link[4]}">
-        <input type="hidden" name="example" value="{$tateyoko[4]}">
-        <input type="hidden" name="example" value="{$location[5]}">
-        <input type="hidden" name="example" value="{$photo_path[5]}">
-        <input type="hidden" name="example" value="{$link[5]}">
-        <input type="hidden" name="example" value="{$tateyoko[5]}">
-        <input type="hidden" name="example" value="{$location[6]}">
-        <input type="hidden" name="example" value="{$photo_path[6]}">
-        <input type="hidden" name="example" value="{$link[6]}">
-        <input type="hidden" name="example" value="{$tateyoko[6]}">
-        <input type="hidden" name="example" value="{$location[7]}">
-        <input type="hidden" name="example" value="{$photo_path[7]}">
-        <input type="hidden" name="example" value="{$link[7]}">
-        <input type="hidden" name="example" value="{$tateyoko[7]}">
-        <input type="hidden" name="example" value="{$location[8]}">
-        <input type="hidden" name="example" value="{$photo_path[8]}">
-        <input type="hidden" name="example" value="{$link[8]}">
-        <input type="hidden" name="example" value="{$tateyoko[8]}">
-        <input type="hidden" name="example" value="{$location[9]}">
-        <input type="hidden" name="example" value="{$photo_path[9]}">
-        <input type="hidden" name="example" value="{$link[9]}">
-        <input type="hidden" name="example" value="{$tateyoko[9]}">
-      </div>
-      
-      EOF;
     }
 
     function widget(){
@@ -183,7 +131,7 @@ class CustomHeaderPhotoLinker
         var targetImage = document.getElementById('main-feat-img');// 配列に変えなければならない
         //var targetImages = [];//　貼り付け先の画像Id 文字列から要素を呼び起こして配列に格納する
         var idCanvas = document.getElementById('maps');// 配列に変えなければならない
-        //var idCanvasArr = [];//　上記のtargetImagesに設定するCanvasを格納 文字列から要素を呼び起こして配列に格納する
+        //var idCanvasArr = [];// 上記のtargetImagesに設定するCanvasを格納 文字列から要素を呼び起こして配列に格納する
         var style = window.getComputedStyle(idCanvas);// 配列に変えなければならない
         //var canvasStyles = [];//　上記のidCanvasに格納されている各配列のスタイルを取得 文字列から要素を呼び起こして配列に格納する
     
@@ -546,6 +494,7 @@ class CustomHeaderPhotoLinker
                     }
                 }
             }
+
         });    
     
         idCanvas.addEventListener('load', function(){
