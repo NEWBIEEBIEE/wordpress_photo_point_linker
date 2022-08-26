@@ -13,6 +13,14 @@
 
 <?php
 
+///////////////////////////////////////
+// テーマカスタマイザーにロゴアップロード設定機能追加
+///////////////////////////////////////
+define('LOGO_SECTION', 'logo_section'); //セクションIDの定数化
+define('LOGO_IMAGE_URL', 'logo_image_url'); //セッティングIDの定数化
+
+define('UPLOAD_INFO_MAX_NUM', 10);
+
 register_activation_hook(__FILE__, 'chpla_install');// 有効化の際に一度だけ処理
 register_uninstall_hook ( __FILE__, 'chpla_delete_data' );// 無効化の際に一度だけ処理
 
@@ -23,25 +31,41 @@ add_action(
      //create_function('', 'return register_widget("CustomHeaderPhotoLinker");')   
      new CustomHeaderPhotoLinker()
 );
+add_action( 'customize_register', function ( $wp_customize ){
+    //ここにカスタマイザー登録処理
 
+}
 
-add_action('widgets_init',  function(){register_widget('CustomHeaderPhotoLinkerWidget');});
 
 /* 初回読み込み時にテーブル作成 */
-function dejimono_install(){
+function chpla_install(){
     global $wpdb;
     
-    $table = $wpdb->prefix.'dejimono_test';
+    $table = $wpdb->prefix.'locs_info';
     $charset_collate = $wpdb->get_charset_collate();
 
-    if ($wpdb->get_var("show tables like '$table'") != $table) {
+    // 画像位置情報
+    if ($wpdb->get_var("show tables like '$table'") != $table){
         
         $sql = "CREATE TABLE  {$table} (
-            query_num int, 
-            file_name VARCHAR(400),
-            item1 VARCHAR(30),
-            item2 VARCHAR(30),
-            item3 VARCHAR(30)
+            ID int(11) not null auto_increment,
+            FILE_PATH VARCHAR(400),
+            LOC_OF_CANVAS text,
+            LINK text
+            ) $charset_collate;";
+        
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+    }
+
+    // 写真情報
+    $table = $wpdb->prefix.'photo_info';
+    if($wpdb->get_var("show tables like '$table'") != $table){
+
+        $sql = "CREATE TABLE  {$table} (
+            ID int(11) not null auto_increment,
+            PHOTO_SIZE VARCHAR(400),
+            ELEMENT_PATH text,
             ) $charset_collate;";
         
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
@@ -50,27 +74,15 @@ function dejimono_install(){
 }
 
 /* プラグイン削除時にはテーブルを削除 */
-function dejimono_delete_data()
+function chpla_delete_data()
 {
         global $wpdb;
-        $table_name = $wpdb->prefix . 'dejimono_test';
+        $table_name = $wpdb->prefix . 'locs_info';
         $sql = "DROP TABLE IF EXISTS {$table_name}";
         $wpdb->query($sql);
 }
 
-class CustomHeaderPhotoLinkerAdmin{
-    /* 管理画面表示 */
-    function chpla_CategoryCreatorMenu()
-    {
-        add_menu_page('CustomHeaderPhotoLinker Plugin','PhotoLinker','administrator', __FILE__, 'chpla_CategorySettingsPage' , 'dashicons-buddicons-replies');
-    }
-    
-    /* 管理画面表示 */
-    function chpla_CategorySettingsPage() {
-        echo 'hello world';
-        echo plugin_dir_path( __FILE__ );
-    }
-}
+
 
 
     
@@ -100,71 +112,236 @@ class CustomHeaderPhotoLinker
       // コールバック関数に付随する処理
     }
 
+    function customizerAddon(){
+
+    }
+
+    ///////////////////////////////////////
+    // テーマカスタマイザーにロゴアップロード設定機能追加
+    ///////////////////////////////////////
+    function theme_customizer( $wp_customize ) {
+        
+        $wp_customize->add_panel( 'my_panel_setting', array(
+            'priority' => 1,
+            'title' => '画像リンクの追加',
+          ));
+
+        $wp_customize->add_section( 'my_theme_setting', array(
+            'title'    => '設定', 
+            'priority' => 1,
+            'panel'    => 'my_panel_setting'    
+        ));
+
+        // 選択画像
+
+        $wp_customize->add_section( 'my_theme_text', array(
+            'title'    => 'テキスト', 
+            'priority' => 2,
+            'panel'    => 'my_panel_setting'    
+        ));
+        //　対象のCANVAS画像
+        $wp_customize->add_setting( 'my_text', array(
+            'type'      => 'option',
+            'sanitize_callback' => 'wp_filter_nohtml_kses'
+         ));
+    
+        $wp_customize->add_control( 'my_text', array(
+            'label'       => 'text', 
+            'type'        => 'text',
+            'section'     => 'my_theme_text', //大本
+            'settings'    => 'my_text', 
+            'description' => 'textを設定してください。', 
+        ));
+        // 画像の今の大きさ
+        $wp_customize->add_setting( 'my_text', array(
+            'type'      => 'option',
+            'sanitize_callback' => 'wp_filter_nohtml_kses'
+         ));
+    
+        $wp_customize->add_control( 'my_text', array(
+            'label'       => 'text', 
+            'type'        => 'text',
+            'section'     => 'my_theme_text', //大本
+            'settings'    => 'my_text', 
+            'description' => 'textを設定してください。', 
+        ));
+
+
+        // 貼り付ける画像と座標
+        for(){
+            add_photo_uploader();
+            add_info_form();
+        }
+
+    }
+
+    function add_photo_uploader($num){
+        $wp_customize->add_section( LOGO_SECTION , array(
+            'title' => 'ロゴ画像' + num, //セクション名
+            'priority' => 30 + num, //カスタマイザー項目の表示順
+            'description' => 'サイトのロゴ設定。その' + num, //セクションの説明
+        ) );
+
+        $wp_customize->add_setting( LOGO_IMAGE_URL );
+        $wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, LOGO_IMAGE_URL, array(
+            'label' => 'ロゴ', //設定ラベル
+            'section' => LOGO_SECTION + num, //セクションID
+            'settings' => LOGO_IMAGE_URL + num, //セッティングID
+            'description' => '画像をアップロードすると画像を追加できます。',
+        ) ) );
+    }
+
+    function add_info_form($num, $wp_customize){
+
+        // 座標
+
+        $wp_customize->add_section( 'my_theme_text', array(
+            'title'    => 'テキスト', 
+            'priority' => 2,
+            'panel'    => 'my_panel_setting'    
+        ));
+    
+        $wp_customize->add_setting( 'my_text', array(
+            'type'      => 'option',
+            'sanitize_callback' => 'wp_filter_nohtml_kses'
+         ));
+    
+        $wp_customize->add_control( 'my_text', array(
+            'label'       => 'text', 
+            'type'        => 'text',
+            'section'     => 'my_theme_text', 
+            'settings'    => 'my_text', 
+            'description' => 'textを設定してください。', 
+        ));
+
+        // URL
+
+        $wp_customize->add_section( 'my_theme_url', array(
+            'title'    => 'URL', 
+            'priority' => 6,
+            'panel'    => 'my_panel_setting'    
+        ));
+    
+        $wp_customize->add_setting( 'my_url', array(
+            'type'      => 'option',
+            'sanitize_callback' => 'esc_url_raw'
+         ));
+    
+        $wp_customize->add_control( 'my_url', array(
+            'label'       => 'url', 
+            'type'        => 'url',
+            'section'     => 'my_theme_url', 
+            'settings'    => 'my_url', 
+            'description' => 'urlを設定してください。',
+        ));
+
+    }
+
+
+    add_action( 'customize_register', 'themename_theme_customizer' );//カスタマイザーに登録
+
+    //ロゴイメージURLの取得
+    function get_the_logo_image_url(){
+        return esc_url( get_theme_mod( LOGO_IMAGE_URL ) );
+    }
+
+
     function hiddenInformation() {
 
+        // データベースより情報取得
+        echo '<span class="photo_locations_information">';
+
+        // 対象画像の選択
+        echo '<input type="hidden" name="photo_size" value="{$location}">';
+        echo '<input type="hidden" name="element_path" value="{$location}">';
+
+        //if ( current_user_can('administrator') || current_user_can('editor') || current_user_can('author') ):
+        global $wpdb;
+        $query = "SELECT * FROM $wpdb->wp_locs_info ORDER BY ID LIMIT 10;";
+        // $query = "SELECT * FROM $wpdb->wp_locs_info ORDER BY ID LIMIT 10;";
+        $results = $wpdb->get_results($query);
+        foreach($results as $row) {
+            $id = $row->ID;
+            $location = $row->LOCATION;
+
+            $photo_path = $row->PATH;
+            $link = $row->LINK;
+            //<?php echo get_the_logo_image_url(); 
+            echo <<<EOF
+            <input type="hidden" name="point_loc{$id}" value="{$location}">
+            <input type="hidden" name="photo_path{$id}" value="{$photo_path}">
+            <input type="hidden" name="hidden_link{$id}" value="{$link}">
+            EOF;
+        }
+        // echo "ユーザー名は：" . $results[4]->user_login . nl2br("\n") .
+        // "ディスプレイ名は：" . $results[4]->display_name ;
+        echo "タイトル：" . $results[37]->post_title . nl2br("\n") . "投稿日時：" . $results[37]->post_date;
+        //endif;
+
         // 場所と画像のファイル、リンク先
-        echo <<<EOF
-      
-      <div class="notice notice-info is-dismissible">
-        <input type="hidden" name="example" value="{$location[0]}">
-        <input type="hidden" name="example" value="{$photo_path[0]}">
-        <input type="hidden" name="example" value="{$link[0]}">
-        <input type="hidden" name="example" value="{$tateyoko[0]}">
-        <input type="hidden" name="example" value="{$location[1]}">
-        <input type="hidden" name="example" value="{$photo_path[1]}">
-        <input type="hidden" name="example" value="{$link[1]}">
-        <input type="hidden" name="example" value="{$tateyoko[1]}">
-        <input type="hidden" name="example" value="{$location[2]}">
-        <input type="hidden" name="example" value="{$photo_path[2]}">
-        <input type="hidden" name="example" value="{$link[2]}">
-        <input type="hidden" name="example" value="{$tateyoko[2]}">
-        <input type="hidden" name="example" value="{$location[3]}">
-        <input type="hidden" name="example" value="{$photo_path[3]}">
-        <input type="hidden" name="example" value="{$link[3]}">
-        <input type="hidden" name="example" value="{$tateyoko[3]}">
-        <input type="hidden" name="example" value="{$location[4]}">
-        <input type="hidden" name="example" value="{$photo_path[4]}">
-        <input type="hidden" name="example" value="{$link[4]}">
-        <input type="hidden" name="example" value="{$tateyoko[4]}">
-        <input type="hidden" name="example" value="{$location[5]}">
-        <input type="hidden" name="example" value="{$photo_path[5]}">
-        <input type="hidden" name="example" value="{$link[5]}">
-        <input type="hidden" name="example" value="{$tateyoko[5]}">
-        <input type="hidden" name="example" value="{$location[6]}">
-        <input type="hidden" name="example" value="{$photo_path[6]}">
-        <input type="hidden" name="example" value="{$link[6]}">
-        <input type="hidden" name="example" value="{$tateyoko[6]}">
-        <input type="hidden" name="example" value="{$location[7]}">
-        <input type="hidden" name="example" value="{$photo_path[7]}">
-        <input type="hidden" name="example" value="{$link[7]}">
-        <input type="hidden" name="example" value="{$tateyoko[7]}">
-        <input type="hidden" name="example" value="{$location[8]}">
-        <input type="hidden" name="example" value="{$photo_path[8]}">
-        <input type="hidden" name="example" value="{$link[8]}">
-        <input type="hidden" name="example" value="{$tateyoko[8]}">
-        <input type="hidden" name="example" value="{$location[9]}">
-        <input type="hidden" name="example" value="{$photo_path[9]}">
-        <input type="hidden" name="example" value="{$link[9]}">
-        <input type="hidden" name="example" value="{$tateyoko[9]}">
-      </div>
-      
-      EOF;
+        echo '</span>';
+    }
+
+    function update_logos_information($id, $location, $photo_path, $link)
+    {
+        global $wpdb;
+
+        $query = "SELECT * FROM $wpdb->wp_locs_info WHERE ID = $id";
+
+        $results = $wpdb->get_results($query);
+
+
+        if($wpdb->num_rows)// レコードの数
+        {
+            $query = "DELETE FROM $wpdb->wp_locs_info WHERE ID = $id";
+            $results = $wpdb->get_results($query);
+        }
+        $query = "INSERT INTO $wpdb->wp_locs_info (ID, FILE_PATH, LOC_OF_CANVAS, LINK) VALUES ($id, $location, $photo_path, $link)";
+
+        $results = $wpdb->get_results($query);
+    }
+
+    function update_photo_infomation($element_path, $photo_size)
+    {
+        global $wpdb;
+
+        $query = "SELECT * FROM $wpdb->wp_photo_info";
+
+        $results = $wpdb->get_results($query);
+
+        $row_first = array_shift($results);
+
+        $id = $row_first->ID;
+
+        if($wpdb->num_rows)// レコードの数
+        {
+            $query = "DELETE FROM $wpdb->wp_photo_info ORDER BY ID ASC LIMIT 1";
+            $results = $wpdb->get_results($query);
+        }
+        $query = "INSERT INTO $wpdb->wp_photo_info (ID, PHOTO_SIZE, ELEMENT_PATH) VALUES (, $element_path, $photo_size)";
+
+        $results = $wpdb->get_results($query);
     }
 
     function widget(){
         $javascript_EOL = <<<CANVAS
         <style>
         /* 選択された画像を塗りつぶして分かるようにする */
-        .active{
+        .active_canvas_target{
             /*content: '';
             position: absolute;
             top: 0;
             right: 0;
             bottom: 0;
             left: 0;*/
-            background-color: #3399FF;
+            background-color: 
+            ;
             //opacity: 0.5;
             display:inline-block;
+        }
+        .active_pre_process{
+            opacity: 0.5;
+            display: block;
         }
         </style>
         <script type="text/javascript">
@@ -664,7 +841,7 @@ class CustomHeaderPhotoLinker
         }, false);
     
         //https://note.com/fuminon3745/n/n33184d12ce30
-        // 
+        // 指定した要素に対して場所をフィールドに記載し、色付けてわかるようにする。
         document.body.onclick = (e) => {
             if(imgFieldOnOff){
                 // デフォルトのイベントをキャンセル
@@ -672,6 +849,15 @@ class CustomHeaderPhotoLinker
                 
                 //var pageX = e.pageX;
                 //var pageY = e.pageY;
+
+                //他で指定したものを削除する処理
+                var preset_processed_jav = document.getElementsByClassName('test');
+                classList.remove();
+
+
+                var preset_processed_css = document.getElementsByClassName('test');
+
+                //他で指定したものを削除する処理　ここまで
                 
                 var rect = e.target.getBoundingClientRect();
                 //var elementUnderMouse = document.elementFromPoint(pageX, pageY);
@@ -692,8 +878,12 @@ class CustomHeaderPhotoLinker
                 //}
                 var nodeChain = elementUnderMouse;
                 //elementUnderMouse.style.backgroundColor = "#FFFF00";
-                elementUnderMouse.style.opacity = "0.5";
-                elementUnderMouse.style.display = "block";
+                // 透明にして背景色
+                //elementUnderMouse.style.opacity = "0.5";
+                //elementUnderMouse.style.display = "block";
+                elementUnderMouse.classList.add(active_pre_process);
+
+
                 lastFocusImgField.value = "";
                 while(true){
     
@@ -727,13 +917,13 @@ class CustomHeaderPhotoLinker
                 }
     
                 nodeChain = elementUnderMouse;
-                // ブロック要素走査しクラス追加
+                // ブロック要素走査しクラス追加 追加される画像の要素を塗りつぶし、わかるようにする
                 for(var i = 0; i < 30; i++){
                     if(nodeChain.tagName){
                         console.log(nodeChain.tagName);
                         if(blockElems.indexOf(nodeChain.tagName) >= 0)
                         {
-                            nodeChain.classList.add('active');
+                            nodeChain.classList.add('active_canvas_target');
                             break;
                         }
                         if(nodeChain.tagName != 'BODY'){
@@ -756,8 +946,28 @@ class CustomHeaderPhotoLinker
 
  // end of class
 
+/*
 
-class CustomHeaderPhotoLinkerWidget extends WP_Widget{
+要件
+指定した要素にリンク付き画像を表示させたままにしたい
 
-} 
+既存の関数は()内で記載
+
+全体の初期処理（DOMContentLoaded）
+initCanvasField
+
+保存していたトップ画像などの要素を取得（Canvasロード時）（eventListener Load）
+
+resizePhoto>putImageToCanvas
+           >loadCanvas[図形貼り付け]>loadShapePostions[図形を指定の場所に張り付ける]
+
+
+マウスオーバーした際に張り付けた画像の上でマウスポインターを変える　OK
+
+画像、取得する
+
+画面縮小時、画像を等倍で縮小するかどうか？　
+
+
+*/
 ?>
