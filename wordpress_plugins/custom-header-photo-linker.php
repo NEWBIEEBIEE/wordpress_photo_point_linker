@@ -21,6 +21,14 @@ define('LOGO_IMAGE_URL', 'logo_image_url'); //セッティングIDの定数化
 
 define('UPLOAD_INFO_MAX_NUM', 10);
 
+// ウィンドウサイズについて
+define('WIDTH_SMART_PHONE',481);// スマートフォン
+define('WIDTH_TABLET',769);// タブレット
+define('WIDTH_LAPTOP',1025);// デスクトップ
+
+
+document.body.clientWidth;
+
 register_activation_hook(__FILE__, 'chpla_install');// 有効化の際に一度だけ処理
 register_uninstall_hook ( __FILE__, 'chpla_delete_data' );// 無効化の際に一度だけ処理
 
@@ -51,7 +59,9 @@ function chpla_install(){
             ID int(11) not null auto_increment,
             FILE_PATH VARCHAR(400),
             LOC_OF_CANVAS text,
-            LINK text
+            LINK text,
+            MEDIA_TYPE VARCHAR(400),
+            CUR_PHOTO_SIZE VARCHAR(400),
             ) $charset_collate;";
         
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
@@ -64,8 +74,7 @@ function chpla_install(){
 
         $sql = "CREATE TABLE  {$table} (
             ID int(11) not null auto_increment,
-            PHOTO_SIZE VARCHAR(400),
-            ELEMENT_PATH text,
+            ELEMENT_PATH text
             ) $charset_collate;";
         
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
@@ -271,6 +280,7 @@ class CustomHeaderPhotoLinker
             <input type="hidden" name="point_loc{$id}" value="{$location}">
             <input type="hidden" name="photo_path{$id}" value="{$photo_path}">
             <input type="hidden" name="hidden_link{$id}" value="{$link}">
+            <input type="hidden" name="media_type{$id}" value="{$media_type}">
             EOF;
         }
         // echo "ユーザー名は：" . $results[4]->user_login . nl2br("\n") .
@@ -624,7 +634,7 @@ class CustomHeaderPhotoLinker
             var u = 0;
             //arrCanvas[i] = window.parent.document.getElementById("_customize-input-my_theme_header_photo_id_class" + (i+1)).value;
             
-            oneCanvas = window.parent.document.getElementById();
+            oneCanvas = window.parent.document.getElementById();// 修正必要
             // 上記に対してCANVASタグを追加する
             //まず対象を取得する
             //var arrExps = new Array();
@@ -776,7 +786,7 @@ class CustomHeaderPhotoLinker
     
             for(var i = 0; i < arrCanvas.length; i++){
                 var u = 0;
-                arrCanvas[i] = window.parent.document.getElementById("_customize-input-my_theme_header_photo_id_class" + (i+1)).value;
+                arrCanvas[i] = window.parent.document.getElementById("_customize-input-my_theme_header_photo_id_class" + (i+1)).value;// 修正必要
                 // 上記に対してCANVASタグを追加する
                 //まず対象を取得する
                 var arrExps = new Array();
@@ -967,6 +977,12 @@ resizePhoto>putImageToCanvas
 画像、取得する
 
 画面縮小時、画像を等倍で縮小するかどうか？　
+
+一つの画像に対して、大きさの異なるメディアでの画像貼り付け位置が選択できる。
+貼り付ける画像に対して、大本の画像の状態を取得すること
+その状態において表示非表示ができること。
+
+画像を指し示すフォームの値が変わるたびに、その要素を辿って、重ね掛けする。
 
 
 */
