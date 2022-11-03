@@ -1089,6 +1089,7 @@ class CustomHeaderPhotoLinker
 
 /*
 
+
 要件
 指定した要素にリンク付き画像を表示させたままにしたい
 
