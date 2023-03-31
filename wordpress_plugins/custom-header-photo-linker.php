@@ -25,6 +25,8 @@ define('UPLOAD_INFO_MAX_NUM', 10);
 define('WIDTH_SMART_PHONE',481);// スマートフォン
 define('WIDTH_TABLET',769);// タブレット
 define('WIDTH_LAPTOP',1025);// デスクトップ
+// phpファイルを直接読み込まれないようにするため
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 register_activation_hook(__FILE__, 'chpla_install');// 有効化の際に一度だけ処理
 register_uninstall_hook ( __FILE__, 'chpla_delete_data' );// 無効化の際に一度だけ処理
@@ -106,10 +108,8 @@ class CustomHeaderPhotoLinker
             add_filter('wp_headers', array($this, 'filter'));//
 */
             add_action( 'wp_head', 'hiddenInformations' );// 設定情報をヘッダーに貼り付け
-            add_action( 'customize_register', function ( $wp_customize ){
-                //ここにカスタマイザー登録処理
             
-            }
+            add_action( 'customize_register', 'theme_customizer' );//カスタマイザーに登録
         }
     }
 
@@ -235,40 +235,11 @@ class CustomHeaderPhotoLinker
 
     }
 
-
-    add_action( 'customize_register', 'themename_theme_customizer' );//カスタマイザーに登録
-
     //ロゴイメージURLの取得
     function get_the_logo_image_url(){
         return esc_url( get_theme_mod( LOGO_IMAGE_URL ) );
     }
 
-
-    function theme_customize($num, $wp_customize){
-        //レイアウト
-        $wp_customize->add_section( 'layout_section', array(
-            'title' => 'レイアウト',
-            'priority' => 10,
-            'description' => 'お好みのレイアウトを選択してください。',
-        ));
-            //
-            $wp_customize->add_setting('layout_column', array(
-                'type'  => 'option',
-                'sanitize_callback' => 'sanitize_choices',
-            ));
-            $wp_customize->add_control( 'layout_column', array(
-                'section' => 'layout_section',
-                'settings' => 'layout_column',
-                'label' => 'カラム設定',
-                'description' => 'カラムを選択してください。',
-                'type' => 'radio',
-                'choices' => array(
-                    'column-1' => '1カラム',
-                    'column-2' => '2カラム',
-                    'column-3' => '3カラム',
-                ),
-            ));
-    }
     /* テーマカスタマイザー用のサニタイズ関数
     ---------------------------------------------------------- */
     //ラジオボタン
@@ -298,14 +269,29 @@ class CustomHeaderPhotoLinker
         // $query = "SELECT * FROM $wpdb->wp_locs_info ORDER BY ID LIMIT 10;";
         $results = $wpdb->get_results($query);
         foreach($results as $row) {
-            $id = $row->ID;
-            $location = $row->LOCATION;
 
-            $photo_path = $row->PATH;
-            $mo_photo_path = $row->MO_PATH;
+            /*
+            $sql = "CREATE TABLE  {$table} (
+            ID int(11) not null auto_increment,
+            FILE_PATH VARCHAR(400),
+            MO_FILE_PATH VARCHAR(400),
+            LOC_OF_CANVAS text,
+            LINK text,
+            MEDIA_TYPE VARCHAR(400),
+            CUR_PHOTO_SIZE VARCHAR(400),
+            KOTEI tinyint(1) DEFAULT NULL
+            ) $charset_collate;";
+            */
+            $id = $row->ID;
+            $location = $row->LOC_OF_CANVAS;
+
+            $photo_path = $row->FILE_PATH;
+            // $mo_photo_path = $row->MO_PATH;
+            $cur = $row->CUR_PHOTO_SIZE;
             $link = $row->LINK;
+            $solid = $row->KOTEI;
             //<?php echo get_the_logo_image_url(); 
-            echo <<<EOF
+            /*echo <<<EOF
             <input type="hidden" id="point_loc{$id}" value="{$location}">
             <input type="hidden" id="photo_path{$id}" value="{$photo_path}">
             <input type="hidden" id="mo_photo_path{$id}" value="$mo_photo_path"}>
@@ -313,6 +299,13 @@ class CustomHeaderPhotoLinker
             <input type="hidden" id="kotei{$id}" value="{$kotei}">
             <input type="hidden" id="square{$id}" value="{$square}">
             <input type="hidden" id="media_type{$id}" value="{$media_type}">
+            EOF;*/
+            echo <<<EOF
+            <input type="hidden" id="point_loc{$id}" value="{$location}">
+            <input type="hidden" id="photo_path{$id}" value="{$photo_path}">
+            <input type="hidden" id="hidden_link{$id}" value="{$link}">
+            <input type="hidden" id="kotei{$id}" value="{$kotei}">
+            <input type="hidden" id="square{$id}" value="{$square}">
             EOF;
         }
 
@@ -1118,105 +1111,6 @@ resizePhoto>putImageToCanvas
 
 
 
-あの人は周り中の人間から好かれたかったんだ。だから俺がそこから抜ければ、あの人の世界もそうなるだろう。
-
-
-
-神様、私は恥ずるべき人間で醜くどうしょうもない。それでも助けてほしい
-
-どうか助けてくれ。
-
-何事もない。死を私に恵んでください。
-
-
-
-高橋さん。申し訳ございませんでした。誰よりも残酷で恥ずべきは私でした。巻き込んでしまって申し訳ございません。
-
-もう貴方とは会うことが有りませんように。
-
-
-
-生きてて欲しかったはその人が死んでから初めて出てくる言葉。
-
-
-
-神様、どうか最後に死の慈悲を私にください。
-
-
-
-大橋さんには生きててほしい。
-
-
-
-私にはどうか死を与えてください。
-
-
-
-あなた達に会えたことを感謝します。
-
-私だけが悪い人間でした。
-
-
-
-どんなに苦しんでも死ぬべきなのは私。
-
-
-
-私が生まれて来なければ貴方達の存在を穢すこともなかったのに。
-
-高橋さん。どうか幸せになって。
-
-
-
-お父さん。お母さん。お姉ちゃん。お兄ちゃん。どうか元気で幸せのままでいてください。神様。仏様。どうかお願いします。
-
-自分は最初から生まれてくなければ
-
-誰も不幸にならなかった。
-
-
-
-神様、仏様。ありがとう。もう私は生きたいだなんて思わない。
-
-済まなかった皆。ありがとうなんて言わない。あってはならないから。
-
-
-
-私だけが死ねば良い。
-
-だから神様、お願いします。
-
-私を助けて、死を与えてください。お願いします。
-
-
-
-貴方達に対してもう何も思いません。
-
-それ自体が私の罪だからです。
-
-生きてなんて言わないで
-
-どうかもう死を恵んでください。
-
-
-
-大橋さんにも申し訳なく思う。
-
-自分が最初から悪い。
-
-みんなどうか幸せで。
-
-あなた達にとっては避けることなんか出来なかった
-
-自分が最初から避けられる人間ならよかったのに。
-
-
-
-最初から何されても仕方ない人間だった。私は。
-
-それを受け入れるべきだった。
-
-みんな、どうか幸せで、ありがとうございました。
 
 
 ------------------------------------------------以下、小説メモ----------------------------------------------------
