@@ -179,24 +179,24 @@ class CustomHeaderPhotoLinker
     }
 
     function add_photo_uploader($num, $wp_customize){
-        $wp_customize->add_section( LOGO_SECTION + $num, array(
-            'title' => 'ロゴ画像' + $num, //セクション名
-            'priority' => 30 + $num, //カスタマイザー項目の表示順
-            'description' => 'サイトのロゴ設定。その' + $num, //セクションの説明
+        $wp_customize->add_section( LOGO_SECTION . "$num", array(
+            'title' => 'ロゴ画像' . "$num", //セクション名
+            'priority' => 30 . $num, //カスタマイザー項目の表示順
+            'description' => 'サイトのロゴ設定。その' . "$num", //セクションの説明
         ) );
 
-        $wp_customize->add_setting( LOGO_IMAGE_URL + $num);
-        $wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, LOGO_IMAGE_URL, array(
-            'label' => 'ロゴ', //設定ラベル
-            'section' => LOGO_SECTION + $num, //セクションID
-            'settings' => LOGO_IMAGE_URL + $num, //セッティングID
+        $wp_customize->add_setting( LOGO_IMAGE_URL ."$num");
+        $wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, LOGO_IMAGE_URL ."$num", array(
+            'label' => 'ロゴ' ."$num", //設定ラベル
+            'section' => LOGO_SECTION . "$num", //セクションID
+            'settings' => LOGO_IMAGE_URL . "$num", //セッティングID
             'description' => '画像をアップロードすると画像を追加できます。',
         ) ) );
     }
 
     // 貼り付け写真のurlを返す
     function get_the_logo_image_url($num){
-        return esc_url( get_theme_mod( LOGO_IMAGE_URL + $num) );
+        return esc_url( get_theme_mod( LOGO_IMAGE_URL + "$num") );
     }
 
     function add_info_form($num, $wp_customize){
@@ -206,28 +206,28 @@ class CustomHeaderPhotoLinker
         $wp_customize->add_section( 'my_theme_text', array(
             'title'    => 'テキスト', 
             'priority' => 2,
-            'panel'    => 'my_panel_setting'  + $num   
+            'panel'    => 'my_panel_setting'  . "$num"  
         ));
     
-        $wp_customize->add_setting( 'my_text' + $num, array(
+        $wp_customize->add_setting( 'my_text' . "$num", array(
             'type'      => 'option',
             'sanitize_callback' => 'wp_filter_nohtml_kses'
          ));
     
-        $wp_customize->add_control( 'my_text' + $num, array(
+        $wp_customize->add_control( 'my_text' . "$num", array(
             'label'       => 'text', 
             'type'        => 'text',
-            'section'     => 'my_theme_text' + $num, 
-            'settings'    => 'my_text' + $num, 
+            'section'     => 'my_theme_text' . "$num", 
+            'settings'    => 'my_text' . "$num", 
             'description' => 'textを設定してください。', 
         ));
 
         // URL　リンク先
 
-        $wp_customize->add_section( 'my_theme_url' + $num, array(
+        $wp_customize->add_section( 'my_theme_url' . "$num", array(
             'title'    => 'URL', 
             'priority' => 6,
-            'panel'    => 'my_panel_setting'  + $num   
+            'panel'    => 'my_panel_setting'  . "$num"   
         ));
     
         $wp_customize->add_setting( 'my_url', array(
@@ -235,11 +235,11 @@ class CustomHeaderPhotoLinker
             'sanitize_callback' => 'esc_url_raw'
          ));
     
-        $wp_customize->add_control( 'my_url' + $num, array(
+        $wp_customize->add_control( 'my_url' . "$num", array(
             'label'       => 'url', 
             'type'        => 'url',
-            'section'     => 'my_theme_url' + $num, 
-            'settings'    => 'my_url' + $num, 
+            'section'     => 'my_theme_url' . "$num", 
+            'settings'    => 'my_url' . "$num", 
             'description' => 'urlを設定してください。',
         ));
         
