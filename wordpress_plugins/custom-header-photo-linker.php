@@ -45,7 +45,7 @@ $object = new CustomHeaderPhotoLinker();
 function chpla_install(){
     global $wpdb;
     
-    $table = $wpdb->prefix.'locs_info';
+    $table = $wpdb->prefix.'wp_locs_info';
     $charset_collate = $wpdb->get_charset_collate();
 
     // 画像位置情報
@@ -67,7 +67,7 @@ function chpla_install(){
     }
 
     // 写真情報
-    $table = $wpdb->prefix.'photo_info';
+    $table = $wpdb->prefix.'wp_photo_info';
     if($wpdb->get_var("show tables like '$table'") != $table){
 
         $sql = "CREATE TABLE  {$table} (
@@ -84,6 +84,9 @@ function chpla_install(){
 function chpla_delete_data()
 {
         global $wpdb;
+        $table_name = $wpdb->prefix . 'photo_info';
+        $sql = "DROP TABLE IF EXISTS {$table_name}";
+        $wpdb->query($sql);
         $table_name = $wpdb->prefix . 'locs_info';
         $sql = "DROP TABLE IF EXISTS {$table_name}";
         $wpdb->query($sql);
@@ -110,6 +113,9 @@ class CustomHeaderPhotoLinker
             add_action( 'wp_head', 'hiddenInformations' );// 設定情報をヘッダーに貼り付け
             
             add_action( 'customize_register', 'theme_customizer' );//カスタマイザーに登録
+
+            add_action( 'wp_footer', 'cv_widget
+            ' );// 設定情報をヘッダーに貼り付け
         }
     }
 
@@ -164,7 +170,7 @@ class CustomHeaderPhotoLinker
         ));
 
 
-        // 貼り付ける画像と座標
+        // 貼り付ける画像と座標の設定画面
         for($i = 1; $i <= UPLOAD_INFO_MAX_NUM; $i++){
             add_photo_uploader();
             add_info_form();
@@ -186,6 +192,11 @@ class CustomHeaderPhotoLinker
             'settings' => LOGO_IMAGE_URL + $num, //セッティングID
             'description' => '画像をアップロードすると画像を追加できます。',
         ) ) );
+    }
+
+    // 貼り付け写真のurlを返す
+    function get_the_logo_image_url($num){
+        return esc_url( get_theme_mod( LOGO_IMAGE_URL + $num) );
     }
 
     function add_info_form($num, $wp_customize){
@@ -211,7 +222,7 @@ class CustomHeaderPhotoLinker
             'description' => 'textを設定してください。', 
         ));
 
-        // URL
+        // URL　リンク先
 
         $wp_customize->add_section( 'my_theme_url' + $num, array(
             'title'    => 'URL', 
@@ -235,11 +246,6 @@ class CustomHeaderPhotoLinker
 
     }
 
-    //ロゴイメージURLの取得
-    function get_the_logo_image_url(){
-        return esc_url( get_theme_mod( LOGO_IMAGE_URL ) );
-    }
-
     /* テーマカスタマイザー用のサニタイズ関数
     ---------------------------------------------------------- */
     //ラジオボタン
@@ -254,7 +260,7 @@ class CustomHeaderPhotoLinker
     }
 
 
-    function hiddenInformation() {
+    function hiddenInformations() {
 
         // データベースより情報取得
         echo '<span class="photo_locations_information">';
@@ -266,7 +272,6 @@ class CustomHeaderPhotoLinker
         //if ( current_user_can('administrator') || current_user_can('editor') || current_user_can('author') ):
         global $wpdb;
         $query = "SELECT * FROM $wpdb->wp_locs_info ORDER BY ID LIMIT 10;";
-        // $query = "SELECT * FROM $wpdb->wp_locs_info ORDER BY ID LIMIT 10;";
         $results = $wpdb->get_results($query);
         foreach($results as $row) {
 
@@ -334,7 +339,7 @@ class CustomHeaderPhotoLinker
         $results = $wpdb->get_results($query);
     }
 
-    function update_photo_infomation($element_path, $photo_size)
+    function update_photo_infomation($element_path, $photo_size)// データベース内の一番最初のレコードを削除し　挿入　(HTML内の写真情報)
     {
         global $wpdb;
 
@@ -351,12 +356,13 @@ class CustomHeaderPhotoLinker
             $query = "DELETE FROM $wpdb->wp_photo_info ORDER BY ID ASC LIMIT 1";
             $results = $wpdb->get_results($query);
         }
-        $query = "INSERT INTO $wpdb->wp_photo_info (ID, PHOTO_SIZE, ELEMENT_PATH) VALUES (, $element_path, $photo_size)";
+        $query = "INSERT INTO $wpdb->wp_photo_info (ID, PHOTO_SIZE, ELEMENT_PATH) VALUES ($id, $element_path, $photo_size)";
 
         $results = $wpdb->get_results($query);
     }
 
-    function widget(){
+    // hidden要素を書き換える
+    function cv_widget(){
         $javascript_EOL = <<<CANVAS
         <style>
         /* 選択された画像を塗りつぶして分かるようにする */
