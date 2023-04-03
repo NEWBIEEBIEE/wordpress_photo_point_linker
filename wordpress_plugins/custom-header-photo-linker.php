@@ -172,8 +172,8 @@ class CustomHeaderPhotoLinker
 
         // 貼り付ける画像と座標の設定画面
         for($i = 1; $i <= UPLOAD_INFO_MAX_NUM; $i++){
-            add_photo_uploader();
-            add_info_form();
+            add_photo_uploader($i,$wp_customize);
+            add_info_form($i,$wp_customize);
         }
 
     }
@@ -271,7 +271,7 @@ class CustomHeaderPhotoLinker
 
         //if ( current_user_can('administrator') || current_user_can('editor') || current_user_can('author') ):
         global $wpdb;
-        $query = "SELECT * FROM $wpdb->wp_locs_info ORDER BY ID LIMIT 10;";
+        $query = "SELECT * FROM $wpdb->prefix.'wp_locs_info' ORDER BY ID LIMIT 10;";
         $results = $wpdb->get_results($query);
         foreach($results as $row) {
 
@@ -324,17 +324,17 @@ class CustomHeaderPhotoLinker
     {
         global $wpdb;
 
-        $query = "SELECT * FROM $wpdb->wp_locs_info WHERE ID = $id";
+        $query = "SELECT * FROM $wpdb->prefix.'wp_locs_info' WHERE ID = $id";
 
         $results = $wpdb->get_results($query);
 
 
         if($wpdb->num_rows)// レコードの数
         {
-            $query = "DELETE FROM $wpdb->wp_locs_info WHERE ID = $id";
+            $query = "DELETE FROM $wpdb->prefix.'wp_locs_info' WHERE ID = $id";
             $results = $wpdb->get_results($query);
         }
-        $query = "INSERT INTO $wpdb->wp_locs_info (ID, FILE_PATH, LOC_OF_CANVAS, LINK) VALUES ($id, $location, $photo_path, $link)";
+        $query = "INSERT INTO $wpdb->prefix.'wp_locs_info' (ID, FILE_PATH, LOC_OF_CANVAS, LINK) VALUES ($id, $location, $photo_path, $link)";
 
         $results = $wpdb->get_results($query);
     }
@@ -343,7 +343,7 @@ class CustomHeaderPhotoLinker
     {
         global $wpdb;
 
-        $query = "SELECT * FROM $wpdb->wp_photo_info";
+        $query = "SELECT * FROM $wpdb->prefix.'wp_photo_info'";
 
         $results = $wpdb->get_results($query);
 
@@ -353,10 +353,10 @@ class CustomHeaderPhotoLinker
 
         if($wpdb->num_rows)// レコードの数
         {
-            $query = "DELETE FROM $wpdb->wp_photo_info ORDER BY ID ASC LIMIT 1";
+            $query = "DELETE FROM$wpdb->prefix.'wp_photo_info' ORDER BY ID ASC LIMIT 1";
             $results = $wpdb->get_results($query);
         }
-        $query = "INSERT INTO $wpdb->wp_photo_info (ID, PHOTO_SIZE, ELEMENT_PATH) VALUES ($id, $element_path, $photo_size)";
+        $query = "INSERT INTO $wpdb->prefix.'wp_photo_info' (ID, PHOTO_SIZE, ELEMENT_PATH) VALUES ($id, $element_path, $photo_size)";
 
         $results = $wpdb->get_results($query);
     }
