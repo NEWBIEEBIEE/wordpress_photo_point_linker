@@ -1,7 +1,7 @@
 <?php
 /*
   Plugin Name: CustomHeaderPhotoLinker
-  Plugin URI:
+  Plugin URI: https://github.com/NEWBIEEBIEE/CustomHeaderPhotoLinker
   Description: トップページ画像の装飾・リンクの追加
   Version: 1.0.0
   Author: Naoyuki Sawabe
@@ -28,8 +28,8 @@ define('WIDTH_LAPTOP',1025);// デスクトップ
 // phpファイルを直接読み込まれないようにするため
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-register_activation_hook(__FILE__, 'chpla_install');// 有効化の際に一度だけ処理
-register_uninstall_hook ( __FILE__, 'chpla_delete_data' );// 無効化の際に一度だけ処理
+#register_activation_hook(__FILE__, 'chpla_install');// 有効化の際に一度だけ処理
+#register_uninstall_hook ( __FILE__, 'chpla_delete_data' );// 無効化の際に一度だけ処理
 
 
 //add_action('init', 'CustomHeaderPhotoLinker::init');
@@ -114,8 +114,7 @@ class CustomHeaderPhotoLinker
             
             add_action( 'customize_register', 'theme_customizer' );//カスタマイザーに登録
 
-            add_action( 'wp_footer', 'cv_widget
-            ' );// 設定情報をヘッダーに貼り付け
+            add_action( 'wp_footer', 'cv_widget' );// 設定情報をヘッダーに貼り付け
         }
     }
 
@@ -126,72 +125,113 @@ class CustomHeaderPhotoLinker
         
         $wp_customize->add_panel( 'my_panel_setting', array(
             'priority' => 1,
-            'title' => '画像リンクの追加',
+            'title' => 'キャンパス画像リンクの追加',
           ));
 
-        $wp_customize->add_section( 'my_theme_setting', array(
+        $wp_customize->add_section( 'my_section', array(
             'title'    => '設定', 
             'priority' => 1,
             'panel'    => 'my_panel_setting'    
         ));
 
         // 選択画像
-
-        $wp_customize->add_section( 'my_theme_text', array(
-            'title'    => 'テキスト', 
-            'priority' => 2,
-            'panel'    => 'my_panel_setting'    
-        ));
         //　対象のCANVAS画像
-        $wp_customize->add_setting( 'my_text', array(
+        $wp_customize->add_setting( 'my_setting');
+    
+        $wp_customize->add_control(
+            new WP_Customize_Control(
+                $wp_customize,
+                'my_control',
+                array(
+                    'label' => '画像の指定',
+                    'section' => 'my_section',
+                    'settings' => 'my_setting',
+                    'priority' => 1,
+                )
+            )
+        );
+
+        // 1
+        $wp_customize->add_setting( 'my_image1');
+        $wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'my_setting', array(
+            'label' => 'ロゴ1', //設定ラベル
+            'section' => 'my_section', //セクションID
+            'settings' => 'my_image1', //セッティングID
+            'description' => '画像をアップロードすると画像を追加できます。',
+        )));
+
+        $wp_customize->add_setting( 'my_loc1', array(
             'type'      => 'option',
             'sanitize_callback' => 'wp_filter_nohtml_kses'
          ));
     
-        $wp_customize->add_control( 'my_text', array(
-            'label'       => 'text', 
+        $wp_customize->add_control( 'my_loc1', array(
+            'label'       => 'location', 
             'type'        => 'text',
-            'section'     => 'my_theme_text', //大本
-            'settings'    => 'my_text', 
-            'description' => 'textを設定してください。', 
+            'section'     => 'my_section', 
+            'settings'    => 'my_loc1', 
+            'description' => '画面の上にあるボタンより設定ください。', 
         ));
-        // 画像の今の大きさ
-        $wp_customize->add_setting( 'my_text', array(
+
+        // URL　リンク先
+
+        $wp_customize->add_setting( 'my_url1', array(
             'type'      => 'option',
-            'sanitize_callback' => 'wp_filter_nohtml_kses'
+            'sanitize_callback' => 'esc_url_raw'
          ));
     
-        $wp_customize->add_control( 'my_text', array(
-            'label'       => 'text', 
+        $wp_customize->add_control( 'my_url1', array(
+            'label'       => 'url', 
+            'type'        => 'url',
+            'section'     => 'my_section', 
+            'settings'    => 'my_url1', 
+            'description' => 'urlを設定してください。',
+        ));
+
+        // 2
+        $wp_customize->add_setting( 'my_image2');
+        $wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'my_setting2', array(
+            'label' => 'ロゴ2', //設定ラベル
+            'section' => 'my_section', //セクションID
+            'settings' => 'my_image2', //セッティングID
+            'description' => '画像をアップロードすると画像を追加できます。',
+        )));
+
+        $wp_customize->add_setting( 'my_loc2', array(
+            'type'      => 'option',
+            'sanitize_callback' => 'wp_filter_nohtml_kses'
+            ));
+    
+        $wp_customize->add_control( 'my_loc2', array(
+            'label'       => 'location', 
             'type'        => 'text',
-            'section'     => 'my_theme_text', //大本
-            'settings'    => 'my_text', 
-            'description' => 'textを設定してください。', 
+            'section'     => 'my_section', 
+            'settings'    => 'my_loc2', 
+            'description' => '画面の上にあるボタンより設定ください。', 
+        ));
+
+        // URL　リンク先
+
+        $wp_customize->add_setting( 'my_url2', array(
+            'type'      => 'option',
+            'sanitize_callback' => 'esc_url_raw'
+            ));
+    
+        $wp_customize->add_control( 'my_url2', array(
+            'label'       => 'url', 
+            'type'        => 'url',
+            'section'     => 'my_section', 
+            'settings'    => 'my_url2', 
+            'description' => 'urlを設定してください。',
         ));
 
 
         // 貼り付ける画像と座標の設定画面
-        for($i = 1; $i <= UPLOAD_INFO_MAX_NUM; $i++){
+        /*for($i = 1; $i <= UPLOAD_INFO_MAX_NUM; $i++){
             add_photo_uploader($i,$wp_customize);
             add_info_form($i,$wp_customize);
-        }
+        }*/
 
-    }
-
-    function add_photo_uploader($num, $wp_customize){
-        $wp_customize->add_section( LOGO_SECTION . "$num", array(
-            'title' => 'ロゴ画像' . "$num", //セクション名
-            'priority' => 30 . $num, //カスタマイザー項目の表示順
-            'description' => 'サイトのロゴ設定。その' . "$num", //セクションの説明
-        ) );
-
-        $wp_customize->add_setting( LOGO_IMAGE_URL ."$num");
-        $wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, LOGO_IMAGE_URL ."$num", array(
-            'label' => 'ロゴ' ."$num", //設定ラベル
-            'section' => LOGO_SECTION . "$num", //セクションID
-            'settings' => LOGO_IMAGE_URL . "$num", //セッティングID
-            'description' => '画像をアップロードすると画像を追加できます。',
-        ) ) );
     }
 
     // 貼り付け写真のurlを返す
@@ -199,52 +239,7 @@ class CustomHeaderPhotoLinker
         return esc_url( get_theme_mod( LOGO_IMAGE_URL + "$num") );
     }
 
-    function add_info_form($num, $wp_customize){
 
-        // 座標
-
-        $wp_customize->add_section( 'my_theme_text', array(
-            'title'    => 'テキスト', 
-            'priority' => 2,
-            'panel'    => 'my_panel_setting'  . "$num"  
-        ));
-    
-        $wp_customize->add_setting( 'my_text' . "$num", array(
-            'type'      => 'option',
-            'sanitize_callback' => 'wp_filter_nohtml_kses'
-         ));
-    
-        $wp_customize->add_control( 'my_text' . "$num", array(
-            'label'       => 'text', 
-            'type'        => 'text',
-            'section'     => 'my_theme_text' . "$num", 
-            'settings'    => 'my_text' . "$num", 
-            'description' => 'textを設定してください。', 
-        ));
-
-        // URL　リンク先
-
-        $wp_customize->add_section( 'my_theme_url' . "$num", array(
-            'title'    => 'URL', 
-            'priority' => 6,
-            'panel'    => 'my_panel_setting'  . "$num"   
-        ));
-    
-        $wp_customize->add_setting( 'my_url', array(
-            'type'      => 'option',
-            'sanitize_callback' => 'esc_url_raw'
-         ));
-    
-        $wp_customize->add_control( 'my_url' . "$num", array(
-            'label'       => 'url', 
-            'type'        => 'url',
-            'section'     => 'my_theme_url' . "$num", 
-            'settings'    => 'my_url' . "$num", 
-            'description' => 'urlを設定してください。',
-        ));
-        
-
-    }
 
     /* テーマカスタマイザー用のサニタイズ関数
     ---------------------------------------------------------- */
@@ -262,57 +257,24 @@ class CustomHeaderPhotoLinker
 
     function hiddenInformations() {
 
+        $location1 = get_option("my_loc1");
+        $photo_path1 = get_theme_mod("my_image1");
+        $link1 = get_option("my_url1");
+        $location2 = get_option("my_loc2");
+        $photo_path2 = get_theme_mod("my_image2");
+        $link2 = get_option("my_url2");
+
         // データベースより情報取得
         echo '<span class="photo_locations_information">';
-
-        // 対象画像の選択
-        echo '<input type="hidden" name="photo_size" value="{$location}">';
-        echo '<input type="hidden" name="element_path" value="{$location}">';
-
-        //if ( current_user_can('administrator') || current_user_can('editor') || current_user_can('author') ):
-        global $wpdb;
-        $query = "SELECT * FROM $wpdb->prefix.'wp_locs_info' ORDER BY ID LIMIT 10;";
-        $results = $wpdb->get_results($query);
-        foreach($results as $row) {
-
-            /*
-            $sql = "CREATE TABLE  {$table} (
-            ID int(11) not null auto_increment,
-            FILE_PATH VARCHAR(400),
-            MO_FILE_PATH VARCHAR(400),
-            LOC_OF_CANVAS text,
-            LINK text,
-            MEDIA_TYPE VARCHAR(400),
-            CUR_PHOTO_SIZE VARCHAR(400),
-            KOTEI tinyint(1) DEFAULT NULL
-            ) $charset_collate;";
-            */
-            $id = $row->ID;
-            $location = $row->LOC_OF_CANVAS;
-
-            $photo_path = $row->FILE_PATH;
-            // $mo_photo_path = $row->MO_PATH;
-            $cur = $row->CUR_PHOTO_SIZE;
-            $link = $row->LINK;
-            $solid = $row->KOTEI;
-            //<?php echo get_the_logo_image_url(); 
-            /*echo <<<EOF
-            <input type="hidden" id="point_loc{$id}" value="{$location}">
-            <input type="hidden" id="photo_path{$id}" value="{$photo_path}">
-            <input type="hidden" id="mo_photo_path{$id}" value="$mo_photo_path"}>
-            <input type="hidden" id="hidden_link{$id}" value="{$link}">
-            <input type="hidden" id="kotei{$id}" value="{$kotei}">
-            <input type="hidden" id="square{$id}" value="{$square}">
-            <input type="hidden" id="media_type{$id}" value="{$media_type}">
-            EOF;*/
             echo <<<EOF
-            <input type="hidden" id="point_loc{$id}" value="{$location}">
-            <input type="hidden" id="photo_path{$id}" value="{$photo_path}">
-            <input type="hidden" id="hidden_link{$id}" value="{$link}">
-            <input type="hidden" id="kotei{$id}" value="{$kotei}">
-            <input type="hidden" id="square{$id}" value="{$square}">
+            <input type="hidden" id="point_loc1" value="{$location1}">
+            <input type="hidden" id="photo_path1" value="{$photo_path1}">
+            <input type="hidden" id="hidden_link1" value="{$link1}">
+            <input type="hidden" id="point_loc2" value="{$location2}">
+            <input type="hidden" id="photo_path2" value="{$photo_path2}">
+            <input type="hidden" id="hidden_link2" value="{$link2}">
             EOF;
-        }
+    
 
         //endif;
 
