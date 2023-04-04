@@ -732,11 +732,11 @@ class CustomHeaderPhotoLinker
 
             var arrPathCanvas = [];
             //arrPathCanvas[i] = arrCanvas[i].split("=>");
-            arrPathCanvas = oneCanvas.split("=>");// 一つ一つの親子要素について配列順に入れなおす
+            arrPathCanvas = oneCanvas.value.split("=>");// 一つ一つの親子要素について配列順に入れなおす
             var targetROOT = arrPathCanvas[0];// 一番最初の親要素
             var targetElem;
             var candyElements;
-            for(var q = 0; q < arrPathCanvas[i].length; q++){
+            for(var q = 0; q < arrPathCanvas.length; q++){
                 var idMatch = regexpID.test(targetROOT);
                 var clsMatch = regexpCLS.test(targetROOT);
                 var tagMatch = regexpTAG.test(targetROOT);
@@ -756,7 +756,7 @@ class CustomHeaderPhotoLinker
                 }else if(tagMatch){
                     var arrTagName = [];
                     var remaingIndex = 0;
-                    for(var v = q; v < arrPathCanvas[i].length; v++)
+                    for(var v = q; v < arrPathCanvas.length; v++)
                     { // タグの配列に直す
                         // 正規表現でタグ名取得する
                         arrTagName[remaingIndex] = arrPathCanvas[v];
@@ -765,7 +765,7 @@ class CustomHeaderPhotoLinker
                     targetElem = targetTAGChildParser(targetElem, arrTagName, "IMG");
                     break;
                 }
-                targetROOT = arrPathCanvas[i][q+1];// 次の子の要素をセット　この時にtargetElemには目的の子要素までの実際の要素が入っている
+                targetROOT = arrPathCanvas[q+1];// 次の子の要素をセット　この時にtargetElemには目的の子要素までの実際の要素が入っている
             }
 
             // 上記で取得したIMGタグについてCANVASタグを設定
