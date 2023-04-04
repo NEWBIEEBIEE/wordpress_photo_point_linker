@@ -256,7 +256,8 @@ class CustomHeaderPhotoLinker
 
 
     function hiddenInformations() {
-
+        $map = get_option("my_setting");
+        $map = preg_replace ("/ (| )/", "", $map);
         $location1 = get_option("my_loc1");
         $photo_path1 = get_theme_mod("my_image1");
         $link1 = get_option("my_url1");
@@ -266,7 +267,9 @@ class CustomHeaderPhotoLinker
 
         // データベースより情報取得
         echo '<span class="photo_locations_information">';
+
             echo <<<EOF
+            <input type='hidden' id='maps' value="{$map}">
             <input type="hidden" id="point_loc1" value="{$location1}">
             <input type="hidden" id="photo_path1" value="{$photo_path1}">
             <input type="hidden" id="hidden_link1" value="{$link1}">
@@ -361,7 +364,7 @@ class CustomHeaderPhotoLinker
     
         var targetImage = document.getElementById('main-feat-img');// 配列に変えなければならない
         //var targetImages = [];//　貼り付け先の画像Id 文字列から要素を呼び起こして配列に格納する
-        //var idCanvas = document.getElementById('maps');// 配列に変えなければならない
+        idCanvas = document.getElementById('maps');// 配列に変えなければならない
         //var idCanvasArr = [];//　上記のtargetImagesに設定するCanvasを格納 文字列から要素を呼び起こして配列に格納する
         var cvsStyle = window.getComputedStyle(idCanvas);// 配列に変えなければならない
         //var canvasStyles = [];//　上記のidCanvasに格納されている各配列のスタイルを取得 文字列から要素を呼び起こして配列に格納する
@@ -407,7 +410,7 @@ class CustomHeaderPhotoLinker
     
         //}
         // デフォルトのマウスポインター値
-        var defMousePointer = body.style.cursor;
+        var defMousePointer = document.body.style.cursor;
         var mouseDownOnCanvasIconBool = false;
 
         // 元のCanvasの大きさの縦横値
@@ -453,7 +456,7 @@ class CustomHeaderPhotoLinker
         }
         // 要素からそのアイコンの座標取得
 
-        function pointGetter(int id){
+        function pointGetter(id){
             var po_loc = document.getElementById("point_loc"+id).value;
             var raw_point_x_y = po_loc.split(',');
             var point_x_y = [parseFloat(raw_point_x_y[0].trim()), parseFloat(raw_point_x_y[1].trim())];
@@ -463,7 +466,7 @@ class CustomHeaderPhotoLinker
         function backwardIconOriginPoint(id){
             var icon = new Image();//urlから画像を取得
             // 取得した原点
-            var origin_points = pointGetter(int id);
+            var origin_points = pointGetter(id);
             // 固定した大きさか？
             var bool_solid = parseInt(document.getElementById("kotei"+id).value);
             // 取得した元のキャンパス
@@ -723,18 +726,10 @@ class CustomHeaderPhotoLinker
             var u = 0;
             //arrCanvas[i] = window.parent.document.getElementById("_customize-input-my_theme_header_photo_id_class" + (i+1)).value;
             
-            oneCanvas = window.parent.document.getElementById();// 修正必要
+            oneCanvas = window.parent.document.getElementById("_customize-input-my_control");// 修正必要
             // 上記に対してCANVASタグを追加する
             //まず対象を取得する
-            //var arrExps = new Array();
-            //if(arrCanvas[i].lastIndexOf('=>') > 0)
-            //{
-            //	while(arrExps=regexpSEC.exec(arrCanvas[i])!=null{
-            //		arrPathCanvas[i][u++] = arrExps.index; // インデックスを保存
-            //	}	
-            //}
-            //for(var q = 0; q < arrPathCanvas[i].length; q++){
-            //}
+
             var arrPathCanvas = [];
             //arrPathCanvas[i] = arrCanvas[i].split("=>");
             arrPathCanvas = oneCanvas.split("=>");// 一つ一つの親子要素について配列順に入れなおす
