@@ -364,17 +364,17 @@ class CustomHeaderPhotoLinker
     
         var targetImage = document.getElementById('main-feat-img');// 配列に変えなければならない
         //var targetImages = [];//　貼り付け先の画像Id 文字列から要素を呼び起こして配列に格納する
-        idCanvas = document.getElementById('maps');// 配列に変えなければならない
-        //var idCanvasArr = [];//　上記のtargetImagesに設定するCanvasを格納 文字列から要素を呼び起こして配列に格納する
-        var cvsStyle = window.getComputedStyle(idCanvas);// 配列に変えなければならない
-        //var canvasStyles = [];//　上記のidCanvasに格納されている各配列のスタイルを取得 文字列から要素を呼び起こして配列に格納する
+        new_canvas = "";// 配列に変えなければならない
+        //var new_canvasArr = [];//　上記のtargetImagesに設定するCanvasを格納 文字列から要素を呼び起こして配列に格納する
+        var cvsStyle = window.getComputedStyle(new_canvas);// 配列に変えなければならない
+        //var canvasStyles = [];//　上記のnew_canvasに格納されている各配列のスタイルを取得 文字列から要素を呼び起こして配列に格納する
     
         var pointX = -1;
         var pointY = -1;
-        var indexNum = 20;
+        var indexNum = 2;
         var arrTField = new Array(indexNum);
         var arrShapes = new Array(indexNum);
-        var canvasNum = 5;
+        //var canvasNum = 5;
         //var arrCanvas = new Array(canvasNum);// 画像までのパスを示す文字列　非対応
         var oneCanvas = "";
         var arrElemCanvas = new Array(canvasNum);
@@ -418,8 +418,8 @@ class CustomHeaderPhotoLinker
         var pre_horizonal = 0;
 
         // CANVASの初期設定の写経　全部のCANVASに対して
-        if (idCanvas.getContext && idCanvas.getContext('2d').createImageData) {
-            testContext = idCanvas.getContext('2d');
+        if (new_canvas.getContext && new_canvas.getContext('2d').createImageData) {
+            testContext = new_canvas.getContext('2d');
         }
 
         // 座標を取得
@@ -515,23 +515,23 @@ class CustomHeaderPhotoLinker
                 //var height = targetImage.height();
                 if(lastWidth > 0 || lastHeight > 0)
                 {
-                    //
+                    //拡大後と拡大前で寸法が違うために掛けなおし
                     pointX = pointX * ( parseFloat(cvsStyle.width.replace("px","")) / lastWidth );
-                    //
+                    //同上
                     pointY = pointY * ( parseFloat(cvsStyle.height.replace("px","")) / lastHeight);
                     //alert('resize:' + (pointX) + ',' + (pointY));
                     if(lastFocusField)
                     {
                         // カスタマイザーの対象の文字フィールドに座標入力
                         lastFocusField.value = pointX / parseFloat(cvsStyle.width.replace("px","")) + ',' + pointY / parseFloat(cvsStyle.height.replace("px",""));
-                        var arrIndex = (parseFloat(lastFocusField.id.replace('_customize-input-my_theme_options_origin_text_XY', ''), 10) - 1);
+                        var arrIndex = (parseFloat(lastFocusField.id.replace('_customize-input-my_loc', ''), 10) - 1);
                         arrShapes[arrIndex] = lastFocusField.value;
                     }
                 }
                 // 対象Canvasの大きさを固定　ここも変える
-                idCanvas.width = width;
-                idCanvas.height = height;
-                //testContext = idCanvas.getContext("2d");
+                new_canvas.width = width;
+                new_canvas.height = height;
+                //testContext = new_canvas.getContext("2d");
                 // Canvasの大きさを固定し画像を再度貼り付け治す処理
                 putImageToCanvas(width, height);
                 // 一番最初に取得した要素の横幅、縦幅を再度取得
@@ -603,7 +603,7 @@ class CustomHeaderPhotoLinker
         // 座標を最後にアクセスしたテキストフィールドに反映させる。(カスタマイザー)
         function setXYPointToText(e){
             if(lastFocusField) // 初期値なし
-            if((lastFocusField.id.includes('_customize-input-my_theme_options_origin_text_XY'))){
+            if((lastFocusField.id.includes('_customize-input-my_loc'))){
                 let e_ch = new Event('change');
                 let e_ch2 = new Event('input');
             
@@ -613,7 +613,7 @@ class CustomHeaderPhotoLinker
                 //alert((cvsStyle.width) + ',' + (cvsStyle.height));
                 lastFocusField.dispatchEvent(e_ch);//カスタマイザーの公開ボタン
                 lastFocusField.dispatchEvent(e_ch2);//カスタマイザーの公開ボタン
-                var arrIndex = (parseFloat(lastFocusField.id.replace('_customize-input-my_theme_options_origin_text_XY', ''), 10) - 1);
+                var arrIndex = (parseFloat(lastFocusField.id.replace('_customize-input-my_loc', ''), 10) - 1);
                 arrShapes[arrIndex] = lastFocusField.value;
                 loadShapePositions(pointX, pointY);
             }
@@ -842,7 +842,7 @@ class CustomHeaderPhotoLinker
             }
         });    
     
-        idCanvas.addEventListener('load', function(){
+        new_canvas.addEventListener('load', function(){
             resizePhoto(targetImage);
             //loadPointPositions();
             // 上記のマウスオーバー関数
@@ -858,7 +858,7 @@ class CustomHeaderPhotoLinker
             loadCanvas();
         }, false);
     
-        idCanvas.addEventListener('click', function(e){
+        new_canvas.addEventListener('click', function(e){
             //resizePhoto();
             if(custom_mode){
                 getCanvasPointXY(e);
@@ -906,7 +906,7 @@ class CustomHeaderPhotoLinker
             //}
     */
     
-            testContext = idCanvas.getContext("2d");
+            testContext = new_canvas.getContext("2d");
             //testContext.beginPath();
             if(custom_mode)
             {
@@ -927,7 +927,7 @@ class CustomHeaderPhotoLinker
                     //if(!textFieldsContainer){ return false;}
                     //textFieldsContainer.addEventListener("load", function(){
                         for(var i = 0; i < arrTField.length; i++){
-                            arrTField[i] = window.parent.document.getElementById('_customize-input-my_theme_options_origin_text_XY' + (i+1)); // iframeしているときは外側に走査走らないためwindow指定
+                            arrTField[i] = window.parent.document.getElementById('_customize-input-my_loc' + (i+1)); // iframeしているときは外側に走査走らないためwindow指定
                             //if(!arrTField[i]){ return false;}
                             //alert(arrTField[i].nodeName);
                             arrTField[i].addEventListener('focus', function(e) {
@@ -954,7 +954,7 @@ class CustomHeaderPhotoLinker
             loadPointPositions();
             loadCanvas();
             if(!custom_mode)
-            idCanvas.addEventListener("mousedown", mouseDownListner, false);// canvas内のリンクに飛ばす
+            new_canvas.addEventListener("mousedown", mouseDownListner, false);// canvas内のリンクに飛ばす
         }, false);
     
         //https://note.com/fuminon3745/n/n33184d12ce30
