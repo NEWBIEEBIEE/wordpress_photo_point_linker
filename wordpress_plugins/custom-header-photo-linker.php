@@ -413,8 +413,8 @@ class CustomHeaderPhotoLinker
         var defMousePointer = document.body.style.cursor;
         var mouseDownOnCanvasIconBool = false;
 
-        // 元のCanvasの大きさの縦横値
-        var pre_vartical = 0;
+        // 元のアイコンの大きさの縦横値
+        var pre_vertical = 0;
         var pre_horizonal = 0;
 
         // CANVASの初期設定の写経　全部のCANVASに対して
@@ -431,13 +431,14 @@ class CustomHeaderPhotoLinker
 
         }
 
-        // 現在のCanvasの大きさに対して拡大・縮小が必要ならば拡大・縮小時に縦横に対して正方形の形で画像の拡大・縮小をする
+        // 現在のCanvasの大きさに対して拡大・縮小が必要ならば拡大・縮小時に縦横に対して正方形の形でアイコン画像の拡大・縮小をする
         function photoMag(id){
-            var mag_origin = pre_vertical > pre_horizonal ? pre_horizonal : prevertical;
+            point_location(id);
+            var mag_origin = pre_vertical > pre_horizonal ? pre_horizonal : prevertical;//アイコンの正方形の大きさ
 
-            var client_w = document.getElementById('icons_map').clientWidth;
-            var client_h = document.getElementById('icons_map').clientHeight;
-            var mag_client = client_w > client_h ? client_w : client_h;
+            var client_w = document.getElementById('icon_map').clientWidth;// 今現在のCanvasのサイズ width
+            var client_h = document.getElementById('icon_map').clientHeight;// 今現在のCanvasのサイズ height
+            var mag_client = client_w > client_h ? client_w : client_h;// 正方形の大きさ
 
             return (mag_client / mag_origin);
         }
@@ -451,11 +452,12 @@ class CustomHeaderPhotoLinker
         }
 
         function iconOriginMidPoint(origin_x, origin_y, path){
-            var icon_size = naturalIconSize(path);
-            var origin_mid_x = 0;
+            var icon_size = naturalIconSize(path);//アイコン画像の大きさ取得
+            var origin_mid_x_point = (icon_size[0] / 2) + icon_x_point;//icon_x_pointはアイコンの左上座標
+            var origin_mid_y_point = (icon_size[1] / 2) + icon_y_point;//同上
         }
-        // 要素からそのアイコンの座標取得
 
+        // 要素からそのアイコンの座標取得
         function pointGetter(id){
             var po_loc = document.getElementById("point_loc"+id).value;
             var raw_point_x_y = po_loc.split(',');
@@ -464,19 +466,24 @@ class CustomHeaderPhotoLinker
         }
         // 実際の貼り付け位置 読み込み時 リサイズ時
         function backwardIconOriginPoint(id){
-            var icon = new Image();//urlから画像を取得
+            var icon = new Image();//urlから画像を取得用
+
+            //icon.src = document.getElementById("photo_path"+id).value;// 20230406 
+
+
             // 取得した原点
             var origin_points = pointGetter(id);
-            // 固定した大きさか？
-            var bool_solid = parseInt(document.getElementById("kotei"+id).value);
+            // 固定した大きさか？ 20230406廃止
+            //var bool_solid = parseInt(document.getElementById("kotei"+id).value);
             // 取得した元のキャンパス
             // 取得した現在のキャンパス (拡大・縮小対応)
-            var magnifi = photoMag(id);// 正方形で縮小と拡大の縮尺
-            var multiplier = 1;
+            var magnifi = photoMag(id);// iconとキャンバスの部分の正方形で縮小と拡大の縮尺
 
+            var multiplier = 1;
             if(bool_solid != 0){
                 multiplier = magnifi;
             }
+
 
             // 取得した現在のCanvasの大きさ
             var cur_canvas_size = curCanvasSize();
@@ -490,8 +497,8 @@ class CustomHeaderPhotoLinker
         }
         // 現在のcanvasの実際の大きさ
         function curCanvasSize(){
-            var client_w = document.getElementById('icons_map').clientWidth;
-            var client_h = document.getElementById('icons_map').clientHeight;
+            var client_w = document.getElementById('icon_map').clientWidth;
+            var client_h = document.getElementById('icon_map').clientHeight;
 
             return [client_w, client_h];
         }
@@ -499,7 +506,7 @@ class CustomHeaderPhotoLinker
         // img要素からCanvasに画像を転送(ロード時＆リサイズ時)
         function resizePhoto(targetImage)
         {
-            targetImage = document.getElementById('main-feat-img');
+            targetImage = document.getElementById('icon_map');// 変更 20230406
             if ( targetImage.complete ) {
                 // 下記はターゲット画像のもともとの大きさになってしまうのでここは変える
                 width = targetImage.naturalWidth;
@@ -769,21 +776,37 @@ class CustomHeaderPhotoLinker
             }
 
             // 上記で取得したIMGタグについてCANVASタグを設定
+            /*
             var installed = targetElem.parentNode;
             var new_canvas = document.createElement('canvas');
             //new_canvas.id = "maps";
-            new_canvas.id = "icons_map";
+            new_canvas.id = "icon_map";
             new_canvas.innerHTML = installed.innerHTML;
             targetElem.before(new_canvas);
-            targetElem.remove();
+            targetElem.remove();*/
+
+
+            var installed = targetElem.parentNode;
+            var new_canvas = document.createElement('canvas');
+            installed.appendChild(new_canvas);
+            new_canvas.id = "icon_map";
+            new_canvas.style.position = "absolute";
+            new_canvas.style.z-index = "999";
+            new_canvas.style.top = "0px";
+            new_canvas.style.left = "0px";
+            new_canvas.width = targetElem.style.width;
+            new_canvas.height = targetElem.style.height;
+
             //}
+
+            return new_canvas;
         }
     
         // マウスオーバー処理
         document.addEventListener("mouseover", function(event) {
             console.log(event.target); //event.targetの部分がマウスオーバーされている要素になっています
             
-            if(icons_map == event.target)
+            if(icon_map == event.target)
             {
                 // 該当座標でマウスポインターの変換
 
@@ -801,16 +824,16 @@ class CustomHeaderPhotoLinker
                                 
                                 mouseDownOnCanvasIconBool = true;
 
-                                if(icons_map != null)
+                                if(icon_map != null)
                                 {
-                                    icons_map.style.cursor = "pointer";
+                                    icon_map.style.cursor = "pointer";
                                 }
     
                                 // リンクに飛ばす処理
                                 //if(lnk_elems[i].value)
                                 //location.href = lnk_elems[i].value;// canvas内の図形のリンクに飛ばす
                             }else{ // 図形を指していない場合はマウスポインターを元に戻す
-                                icons_map.style.cursor = defMousePointer;
+                                icon_map.style.cursor = defMousePointer;
                                 mouseDownOnCanvasIconBool = false;
                             }
                         }
@@ -823,9 +846,9 @@ class CustomHeaderPhotoLinker
             resizePhoto(targetImage);
             //loadPointPositions();
             // 上記のマウスオーバー関数
-            icons_map = document.getElementById("icons_map");
+            icon_map = document.getElementById("icon_map");
 
-            if (icons_map === null){
+            if (icon_map === null){
                 // 要素が存在しない場合の処理
             } else {
                 // 要素が存在する場合の処理
@@ -863,24 +886,24 @@ class CustomHeaderPhotoLinker
     
         document.addEventListener("DOMContentLoaded", function(){
             // 画像要素キャンパスの追加　一番最初に必要
-            initCanvasField();
+            new_canvas = initCanvasField();
     
     /*　複数の画像に対して実装する予定だった。カールセル対応
             const regexpSEC = /=>/g;
     
-            for(var i = 0; i < arrCanvas.length; i++){
-                var u = 0;
-                arrCanvas[i] = window.parent.document.getElementById("_customize-input-my_theme_header_photo_id_class" + (i+1)).value;// 修正必要
-                // 上記に対してCANVASタグを追加する
-                //まず対象を取得する
-                var arrExps = new Array();
-                if(arrCanvas[i].lastIndexOf('=>') > 0)
-                {
-                    while(arrExps=regexpSEC.exec(arrCanvas[i])!=null){
-                        arrPathCanvas[i][u++] = arrExps.index; // インデックスを保存
-                    }
+            //for(var i = 0; i < arrCanvas.length; i++){
+            var u = 0;
+            arrCanvas[i] = window.parent.document.getElementById("_customize-input-my_theme_header_photo_id_class" + (i+1)).value;// 修正必要
+            // 上記に対してCANVASタグを追加する
+            //まず対象を取得する
+            var arrExps = new Array();
+            if(arrCanvas[i].lastIndexOf('=>') > 0)
+            {
+                while(arrExps=regexpSEC.exec(arrCanvas[i])!=null){
+                    arrPathCanvas[i][u++] = arrExps.index; // インデックスを保存
                 }
             }
+            //}
     */
     
             testContext = idCanvas.getContext("2d");
