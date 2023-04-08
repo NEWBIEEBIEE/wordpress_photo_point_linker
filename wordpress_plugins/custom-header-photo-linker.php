@@ -150,6 +150,21 @@ class CustomHeaderPhotoLinker
                 )
             )
         );
+        // 画像の現在の大きさ
+        $wp_customize->add_setting( 'my_map_size');
+    
+        $wp_customize->add_control(
+            new WP_Customize_Control(
+                $wp_customize,
+                'my_control',
+                array(
+                    'label' => '画像の指定',
+                    'section' => 'my_section',
+                    'settings' => 'my_map_size',
+                    'priority' => 1,
+                )
+            )
+        );
 
         // 1
         $wp_customize->add_setting( 'my_image1');
@@ -270,12 +285,14 @@ class CustomHeaderPhotoLinker
 
             echo <<<EOF
             <input type='hidden' id='maps' value="{$map}">
-            <input type="hidden" id="point_loc1" value="{$location1}">
+            <input type="hidden" id="point_loc1" class="location_point" value="{$location1}">
             <input type="hidden" id="photo_path1" value="{$photo_path1}">
-            <input type="hidden" id="hidden_link1" value="{$link1}">
-            <input type="hidden" id="point_loc2" value="{$location2}">
+            <input type="hidden" id="hidden_link1" class="point_link" value="{$link1}">
+            <input type="hidden" id="current_WH1" value="">
+            <input type="hidden" id="point_loc2" class="location_point" value="{$location2}">
             <input type="hidden" id="photo_path2" value="{$photo_path2}">
-            <input type="hidden" id="hidden_link2" value="{$link2}">
+            <input type="hidden" id="hidden_link2" class="point_link" value="{$link2}">
+            <input type="hidden" id="current_WH2" value="">
             EOF;
     
 
@@ -364,9 +381,9 @@ class CustomHeaderPhotoLinker
     
         var targetImage = document.getElementById('main-feat-img');// 配列に変えなければならない
         //var targetImages = [];//　貼り付け先の画像Id 文字列から要素を呼び起こして配列に格納する
-        new_canvas = "";// 配列に変えなければならない
+        new_canvas = null;// 配列に変えなければならない
         //var new_canvasArr = [];//　上記のtargetImagesに設定するCanvasを格納 文字列から要素を呼び起こして配列に格納する
-        var cvsStyle = window.getComputedStyle(new_canvas);// 配列に変えなければならない
+        var cvsStyle;// = window.getComputedStyle(new_canvas);// 配列に変えなければならない
         //var canvasStyles = [];//　上記のnew_canvasに格納されている各配列のスタイルを取得 文字列から要素を呼び起こして配列に格納する
     
         var pointX = -1;
@@ -380,6 +397,10 @@ class CustomHeaderPhotoLinker
         var arrElemCanvas = new Array(canvasNum);
         var arrPathCanvas = [];// パスを保存する2次配列
 
+        // 画像のスケール
+        var scale = 1;
+
+
         // 拡大と縮小用の原点
         var origin_photo_point_x = 0;
         var origin_photo_point_y = 0;
@@ -388,8 +409,10 @@ class CustomHeaderPhotoLinker
         var icon_height = 0;
     
         // 対象画像指定
-        var arrImgField = new Array(5);
+        //var arrImgField = new Array(5);
         var testContext;
+        // 元の対象img要素
+        var targetElem;
         //　最後にアクセスしたカスタマイザー文字Input
         var lastFocusField;
         // 対象画像領域指定
@@ -400,6 +423,7 @@ class CustomHeaderPhotoLinker
         var width;
         var height;
         var lnk_elems;
+        var imgCurWH = new Array(indexNum);
         // 対象画像領域指定オンオフ
         var imgFieldOnOff = false;
     
@@ -421,7 +445,17 @@ class CustomHeaderPhotoLinker
         if (new_canvas.getContext && new_canvas.getContext('2d').createImageData) {
             testContext = new_canvas.getContext('2d');
         }
-
+        // スケールに対してアイコンの中央の座標
+        function imgMidPoint(pointX, pointY, imgUrl, scale){
+            var arrIconWH = naturalIconSize(imgUrl);
+            return array(pointX + ((arrIconWH[0]/2)*scale), pointY + ((arrIconWH[1]/2)*scale));
+            
+        }
+        // スケールに対してアイコンの大きさを返す
+        function imgScaleWH(imgUrl, scale){
+            var arrIconWH = naturalIconSize(imgUrl);
+            return array((arrIconWH[0])*scale, (arrIconWH[1])*scale);
+        }
         // 座標を取得
         function point_location(id){
             var hid_size = document.getElementById("point_loc"+id).value;
@@ -442,7 +476,10 @@ class CustomHeaderPhotoLinker
 
             return (mag_client / mag_origin);
         }
-
+        // 
+        function canvasScale(preW, preH, w, h){
+            return;
+        }
         function naturalIconSize(path){
             var element = new Image();
             element.src = path;
@@ -513,6 +550,8 @@ class CustomHeaderPhotoLinker
                 height = targetImage.naturalHeight;
                 //var width = targetImage.width();
                 //var height = targetImage.height();
+                
+                
                 if(lastWidth > 0 || lastHeight > 0)
                 {
                     //拡大後と拡大前で寸法が違うために掛けなおし
@@ -537,14 +576,14 @@ class CustomHeaderPhotoLinker
                 // 一番最初に取得した要素の横幅、縦幅を再度取得
                 lastWidth = parseFloat(cvsStyle.width.replace("px",""));
                 lastHeight = parseFloat(cvsStyle.height.replace("px",""));
+                scale = 
     
             }
             loadCanvas();
         }
         // リサイズ対応 画像を取得し、再度貼り付け治す 画像本来の大きさになってしまっているので変えること
         function putImageToCanvas(width, height) {
-            targetImage = document.getElementById('main-feat-img');
-            testContext.drawImage(targetImage, 0, 0, width, height);
+            testContext.drawImage(targetElem, 0, 0, width, height);
         }
         // 画像の中心点と画像からの切り取りを行う際に必要な座標を幅と高さから出す
         function cutImagePointInfo(img,cut_wid,cut_height){
@@ -615,20 +654,24 @@ class CustomHeaderPhotoLinker
                 lastFocusField.dispatchEvent(e_ch2);//カスタマイザーの公開ボタン
                 var arrIndex = (parseFloat(lastFocusField.id.replace('_customize-input-my_loc', ''), 10) - 1);
                 arrShapes[arrIndex] = lastFocusField.value;
-                loadShapePositions(pointX, pointY);
+                loadShapePositions(testContext, lastWidth, lastheight, cvsStyle , pointX, pointY, icon, icon.width, icon.height);
             }
             //alert(typeof lastFocusField);
         }
         // 図形を指定個所に書く
-        function loadShapePositions(textContext, width, height , cvsStyle, posX, posY){
+        function loadShapePositions(testContext, width, height , cvsStyle, posX, posY, imgUrl, imgWid, imgH){
             //alert(posX+','+posY);
+            var icon_inst = new Image();
+            icon_inst.src = imgUrl;
             if(testContext){
-                testContext.beginPath();
-                testContext.fillStyle = "rgba(" + [255, 255, 150, 0.5] + ")";
+                //testContext.beginPath();
+                //testContext.fillStyle = "rgba(" + [255, 255, 150, 0.5] + ")";
                 //testContext.rect(posX / parseFloat(cvsStyle.width.replace("px","")) * width, posY / parseFloat(cvsStyle.height.replace("px","")) * height, 75, 50 ); // canvasで認識しているグリッドの単位がpxとずれているので治す
-                testContext.arc(posX / parseFloat(cvsStyle.width.replace("px","")) * width - 5, posY / parseFloat(cvsStyle.height.replace("px","")) * height - 5, 20, 0, Math.PI*2, false);
-                testContext.fill();
-                testContext.closePath(); // サブパス閉じる
+                //testContext.arc(posX / parseFloat(cvsStyle.width.replace("px","")) * width - 5, posY / parseFloat(cvsStyle.height.replace("px","")) * height - 5, 20, 0, Math.PI*2, false);
+                testContext.drawImage(icon_inst, (posX / parseFloat(cvsStyle.width.replace("px","")) * width - (imgWid / 2))), (posY / parseFloat(cvsStyle.height.replace("px","")) * height - (imgH / 2)));
+                
+                //testContext.fill();
+                //testContext.closePath(); // サブパス閉じる
             }
         }
         // デフォルト値 初期設定　hidden要素取得
@@ -731,7 +774,7 @@ class CustomHeaderPhotoLinker
     
             //for(var i = 0; i < arrCanvas.length; i++){
             var u = 0;
-            //arrCanvas[i] = window.parent.document.getElementById("_customize-input-my_theme_header_photo_id_class" + (i+1)).value;
+            //arrCanvas[i] = window.parent.document.getElementById("_customize-input-my_control" + (i+1)).value;
             
             oneCanvas = window.parent.document.getElementById("_customize-input-my_control");// 修正必要
             // 上記に対してCANVASタグを追加する
@@ -741,7 +784,6 @@ class CustomHeaderPhotoLinker
             //arrPathCanvas[i] = arrCanvas[i].split("=>");
             arrPathCanvas = oneCanvas.value.split("=>");// 一つ一つの親子要素について配列順に入れなおす
             var targetROOT = arrPathCanvas[0];// 一番最初の親要素
-            var targetElem;
             var candyElements;
             for(var q = 0; q < arrPathCanvas.length; q++){
                 var idMatch = regexpID.test(targetROOT);
@@ -790,6 +832,7 @@ class CustomHeaderPhotoLinker
             var new_canvas = document.createElement('canvas');
             installed.appendChild(new_canvas);
             new_canvas.id = "icon_map";
+            installed.style.position = "relative";
             new_canvas.style.position = "absolute";
             new_canvas.style.z-index = "999";
             new_canvas.style.top = "0px";
@@ -888,23 +931,22 @@ class CustomHeaderPhotoLinker
             // 画像要素キャンパスの追加　一番最初に必要
             new_canvas = initCanvasField();
     
-    /*　複数の画像に対して実装する予定だった。カールセル対応
+    /*　複数の画像に対して実装する予定だった。カールセル対応*/
             const regexpSEC = /=>/g;
-    
-            //for(var i = 0; i < arrCanvas.length; i++){
-            var u = 0;
-            arrCanvas[i] = window.parent.document.getElementById("_customize-input-my_theme_header_photo_id_class" + (i+1)).value;// 修正必要
+
+            oneCanvas = window.parent.document.getElementById("_customize-input-my_control").value;// 修正必要
             // 上記に対してCANVASタグを追加する
             //まず対象を取得する
             var arrExps = new Array();
-            if(arrCanvas[i].lastIndexOf('=>') > 0)
+            if(oneCanvas.lastIndexOf('=>') > 0)
             {
-                while(arrExps=regexpSEC.exec(arrCanvas[i])!=null){
-                    arrPathCanvas[i][u++] = arrExps.index; // インデックスを保存
+                if(arrExps=regexpSEC.exec(oneCanvas)!=null){
+                    var startIndex = arrExps.index; // インデックスを保存
+                    arrPathCanvas = split("=>", arrExps.index + 1)
                 }
+            }elseif{ //パスを表すテキストがなかった時
+
             }
-            //}
-    */
     
             testContext = new_canvas.getContext("2d");
             //testContext.beginPath();
@@ -940,15 +982,15 @@ class CustomHeaderPhotoLinker
     
             //指定する(画像領域)
             // カスタマイザー要素に該当の座標を記述する(Canvasをクリックした際に最後にフォーカスを当てたテキストボックスに記述されるためのモノ)
-            for(var i = 0; i < arrImgField.length; i++){
-                arrImgField[i] = window.parent.document.getElementById('_customize-input-my_theme_header_photo_id_class' + (i+1)); // iframeしているときは外側に走査走らないためwindow指定
-                arrImgField[i].addEventListener('focus', function(e) {
-                    lastFocusImgField = e.currentTarget;
-                    console.log(lastFocusImgField.id);
-                    imgFieldOnOff = true;
-                }, false);
-            }
+            oneCanvas = window.parent.document.getElementById('_customize-input-my_control'); // iframeしているときは外側に走査走らないためwindow指定
+            oneCanvas.addEventListener('focus', function(e) {
+                lastFocusImgField = e.currentTarget;
+                console.log(lastFocusImgField.id);
+                imgFieldOnOff = true;
+            }, false);
+
             // 残処理
+            cvsStyle = window.getComputedStyle(new_canvas)
     
             resizePhoto();
             loadPointPositions();
