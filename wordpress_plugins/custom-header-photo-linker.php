@@ -824,7 +824,7 @@ class CustomHeaderPhotoLinker
             targetElem.before(new_canvas);
             targetElem.remove();*/
 
-
+            console.log(targetElem);
             var installed = targetElem.parentNode;
             var new_canvas = document.createElement('canvas');
             installed.appendChild(new_canvas);
