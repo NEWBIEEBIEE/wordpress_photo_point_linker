@@ -940,7 +940,7 @@ class CustomHeaderPhotoLinker
             }else{ //パスを表すテキストがなかった時
 
             }
-            if(newCanvas !== undefined){
+            if(new_canvas !== undefined){
                 testContext = new_canvas.getContext("2d");
                 //testContext.beginPath();
                 if(custom_mode)
