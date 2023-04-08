@@ -442,7 +442,8 @@ class CustomHeaderPhotoLinker
         var pre_horizonal = 0;
 
         // CANVASの初期設定の写経　全部のCANVASに対して
-        if ((new_canvas.getContext('2d') !== null) && new_canvas.getContext('2d').createImageData) {
+        if(new_canvas.getContext('2d') !== null)
+        if (new_canvas.getContext('2d').createImageData) {
             testContext = new_canvas.getContext('2d');
         }
         // スケールに対してアイコンの中央の座標
