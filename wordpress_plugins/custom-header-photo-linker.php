@@ -824,19 +824,19 @@ class CustomHeaderPhotoLinker
             targetElem.before(new_canvas);
             targetElem.remove();*/
 
-            console.log(targetElem);
-            var installed = targetElem.parentNode;
-            var new_canvas = document.createElement('canvas');
-            installed.appendChild(new_canvas);
-            new_canvas.id = "icon_map";
-            installed.style.position = "relative";
-            new_canvas.style.position = "absolute";
-            new_canvas.style.zIndex = "999";
-            new_canvas.style.top = "0px";
-            new_canvas.style.left = "0px";
-            new_canvas.width = targetElem.style.width;
-            new_canvas.height = targetElem.style.height;
-
+            if(targetElem){
+                var installed = targetElem.parentNode;
+                var new_canvas = document.createElement('canvas');
+                installed.appendChild(new_canvas);
+                new_canvas.id = "icon_map";
+                installed.style.position = "relative";
+                new_canvas.style.position = "absolute";
+                new_canvas.style.zIndex = "999";
+                new_canvas.style.top = "0px";
+                new_canvas.style.left = "0px";
+                new_canvas.width = targetElem.style.width;
+                new_canvas.height = targetElem.style.height;
+            }
             //}
 
             return new_canvas;
@@ -945,56 +945,57 @@ class CustomHeaderPhotoLinker
             }else{ //パスを表すテキストがなかった時
 
             }
-    
-            testContext = new_canvas.getContext("2d");
-            //testContext.beginPath();
-            if(custom_mode)
-            {
-                var prev_page = window.parent.document.getElementById('customize-preview');// 上部に要素追加に必要
-                //var prev_added = window.parent.document.getElementById('customize-save-button-wrapper');// 上部に要素追加に必要
-                var added_elem = document.createElement('div');
-                added_elem.id = 'option_menu';
-                added_elem.innerHTML = '<button id="addPoint">AddPoint</button>';
-                added_elem.style = "width:100%; height:50px;"
-                prev_page.insertBefore(added_elem,null);
-            }
-    
-            //var titleBtn = document.getElementById('customize-controls');//document.getElementById('accordion-section-my_theme_origin_scheme');
-            var titleBtn = document.getElementById('addPoint');
-            //var textFieldsContainer = document.getElementById('sub-accordion-section-my_theme_origin_scheme');
-            if(titleBtn){
-                titleBtn.addEventListener("click", function(){
-                    //if(!textFieldsContainer){ return false;}
-                    //textFieldsContainer.addEventListener("load", function(){
-                        for(var i = 0; i < arrTField.length; i++){
-                            arrTField[i] = window.parent.document.getElementById('_customize-input-my_loc' + (i+1)); // iframeしているときは外側に走査走らないためwindow指定
-                            //if(!arrTField[i]){ return false;}
-                            //alert(arrTField[i].nodeName);
-                            arrTField[i].addEventListener('focus', function(e) {
-                                lastFocusField = e.currentTarget;
-                            }, false);
-                        }
-                    //}, false);
+            if(newCanvas){
+                testContext = new_canvas.getContext("2d");
+                //testContext.beginPath();
+                if(custom_mode)
+                {
+                    var prev_page = window.parent.document.getElementById('customize-preview');// 上部に要素追加に必要
+                    //var prev_added = window.parent.document.getElementById('customize-save-button-wrapper');// 上部に要素追加に必要
+                    var added_elem = document.createElement('div');
+                    added_elem.id = 'option_menu';
+                    added_elem.innerHTML = '<button id="addPoint">AddPoint</button>';
+                    added_elem.style = "width:100%; height:50px;"
+                    prev_page.insertBefore(added_elem,null);
+                }
+        
+                //var titleBtn = document.getElementById('customize-controls');//document.getElementById('accordion-section-my_theme_origin_scheme');
+                var titleBtn = document.getElementById('addPoint');
+                //var textFieldsContainer = document.getElementById('sub-accordion-section-my_theme_origin_scheme');
+                if(titleBtn){
+                    titleBtn.addEventListener("click", function(){
+                        //if(!textFieldsContainer){ return false;}
+                        //textFieldsContainer.addEventListener("load", function(){
+                            for(var i = 0; i < arrTField.length; i++){
+                                arrTField[i] = window.parent.document.getElementById('_customize-input-my_loc' + (i+1)); // iframeしているときは外側に走査走らないためwindow指定
+                                //if(!arrTField[i]){ return false;}
+                                //alert(arrTField[i].nodeName);
+                                arrTField[i].addEventListener('focus', function(e) {
+                                    lastFocusField = e.currentTarget;
+                                }, false);
+                            }
+                        //}, false);
+                    }, false);
+                }
+        
+                //指定する(画像領域)
+                // カスタマイザー要素に該当の座標を記述する(Canvasをクリックした際に最後にフォーカスを当てたテキストボックスに記述されるためのモノ)
+                oneCanvas = window.parent.document.getElementById('_customize-input-my_control'); // iframeしているときは外側に走査走らないためwindow指定
+                oneCanvas.addEventListener('focus', function(e) {
+                    lastFocusImgField = e.currentTarget;
+                    console.log(lastFocusImgField.id);
+                    imgFieldOnOff = true;
                 }, false);
-            }
-    
-            //指定する(画像領域)
-            // カスタマイザー要素に該当の座標を記述する(Canvasをクリックした際に最後にフォーカスを当てたテキストボックスに記述されるためのモノ)
-            oneCanvas = window.parent.document.getElementById('_customize-input-my_control'); // iframeしているときは外側に走査走らないためwindow指定
-            oneCanvas.addEventListener('focus', function(e) {
-                lastFocusImgField = e.currentTarget;
-                console.log(lastFocusImgField.id);
-                imgFieldOnOff = true;
-            }, false);
 
-            // 残処理
-            cvsStyle = window.getComputedStyle(new_canvas);
-    
-            resizePhoto();
-            loadPointPositions();
-            loadCanvas();
-            if(!custom_mode)
-            new_canvas.addEventListener("mousedown", mouseDownListner, false);// canvas内のリンクに飛ばす
+                // 残処理
+                cvsStyle = window.getComputedStyle(new_canvas);
+        
+                resizePhoto();
+                loadPointPositions();
+                loadCanvas();
+                if(!custom_mode)
+                new_canvas.addEventListener("mousedown", mouseDownListner, false);// canvas内のリンクに飛ばす
+            }
         }, false);
     
         //https://note.com/fuminon3745/n/n33184d12ce30
