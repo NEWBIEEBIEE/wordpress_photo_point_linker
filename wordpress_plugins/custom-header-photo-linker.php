@@ -590,10 +590,11 @@ class CustomHeaderPhotoLinker
         function loadCanvas(){
             for(var i = 0; i < arrShapes.length; i++){
                 // テキストフィールドから座標を取得
-                if(arrShapes[i] && arrShapes[i].includes(','))
-                // 座標に図形を書き込む　画像に書き込みたい
-                var icon = iconReIndex(i);
-                loadShapePositions(parseFloat(arrShapes[i].split(',')[0]) * parseFloat(cvsStyle.width.replace("px","")), (parseFloat(arrShapes[i].split(',')[1])*parseFloat(cvsStyle.height.replace("px",""))), icon, icon.width, icon.height);
+                if(arrShapes[i] && arrShapes[i].includes(',')){
+                    // 座標に図形を書き込む　画像に書き込みたい
+                    var icon = iconReIndex(i);
+                    loadShapePositions(parseFloat(arrShapes[i].split(',')[0]) * parseFloat(cvsStyle.width.replace("px","")), (parseFloat(arrShapes[i].split(',')[1])*parseFloat(cvsStyle.height.replace("px",""))), icon, icon.width, icon.height);
+                }
             }
         }
         //　ユーザー側で必要な処理　クリック時にリンク先に飛ばす
