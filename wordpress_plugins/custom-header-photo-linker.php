@@ -817,16 +817,11 @@ class CustomHeaderPhotoLinker
             }
 
             // 上記で取得したIMGタグについてCANVASタグを設定
-            /*
-            //var installed = targetElem.parentNode;
-            new_canvas.id = "icon_map";
-            new_canvas.innerHTML = installed.innerHTML;
-            targetElem.before(new_canvas);
-            targetElem.remove();*/
+
+                new_canvas = document.createElement('canvas');
 
             if(targetElem){
                 var installed = targetElem.parentNode;
-                var new_canvas = document.createElement('canvas');
                 installed.appendChild(new_canvas);
                 new_canvas.id = "icon_map";
                 installed.style.position = "relative";
