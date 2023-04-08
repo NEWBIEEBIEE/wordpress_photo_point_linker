@@ -947,7 +947,7 @@ class CustomHeaderPhotoLinker
                     var startIndex = arrExps.index; // インデックスを保存
                     arrPathCanvas = split("=>", arrExps.index + 1)
                 }
-            }elseif{ //パスを表すテキストがなかった時
+            }else{ //パスを表すテキストがなかった時
 
             }
     
