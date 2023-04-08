@@ -836,7 +836,7 @@ class CustomHeaderPhotoLinker
             new_canvas.id = "icon_map";
             installed.style.position = "relative";
             new_canvas.style.position = "absolute";
-            new_canvas.style.z-index = "999";
+            new_canvas.style.zIndex = "999";
             new_canvas.style.top = "0px";
             new_canvas.style.left = "0px";
             new_canvas.width = targetElem.style.width;
