@@ -533,8 +533,8 @@ class CustomHeaderPhotoLinker
         function resizePhoto()
         {
             cvsStyle = window.getComputedStyle(new_canvas);
-            targetImage = document.getElementById('icon_map');// 変更 20230406
-            if ( targetImage.complete ) {
+            targetImage = document.getElementById('targetImage');// 変更 20230406
+            if (targetImage) {
                 // 下記はターゲット画像のもともとの大きさになってしまうのでここは変える
                 //width = targetImage.naturalWidth;
                 //height = targetImage.naturalHeight;
@@ -823,6 +823,7 @@ class CustomHeaderPhotoLinker
             if(targetElem){
                 var installed = targetElem.parentNode;
                 installed.appendChild(new_canvas);
+                targetElem.id = "targetImage";
                 new_canvas.id = "icon_map";
                 installed.style.position = "relative";
                 new_canvas.style.position = "absolute";
