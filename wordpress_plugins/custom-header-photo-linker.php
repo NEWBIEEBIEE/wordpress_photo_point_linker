@@ -426,6 +426,7 @@ class CustomHeaderPhotoLinker
         var imgCurWH = new Array(indexNum);
         // 対象画像領域指定オンオフ
         var imgFieldOnOff = false;
+
     
         // 2022追加 追加canvasについてid取得用
         var icons_map = null;
@@ -456,6 +457,29 @@ class CustomHeaderPhotoLinker
             var arrIconWH = naturalIconSize(imgUrl);
             return array((arrIconWH[0])*scale, (arrIconWH[1])*scale);
         }
+        function iconReIndex(index){
+            var iconImg = new Image();
+            iconImg.src = document.getElementById("photo_path" + index).value;
+            return iconImg;
+        }
+        // スケールを返す
+        function getScaleOfMap(targetImage){
+            //width = targetImage.naturalWidth;
+            //height = targetImage.naturalHeight;
+            var width = targetImage.width();
+            var height = targetImage.height();
+            var squareEdge1 = width >  height ? height : width;
+            var sEArr = getDefaultMapSize();
+            var squareEdge2 = sEArr[0] > sEArr[1] ? sEArr[1] : sEArr[0];
+            scale = (squareEdge1 / squareEdge2);
+        }
+        function getDefaultMapSize(){
+            var defWH = window.parent.document.getElementById("_customize-input-my_map_size").value.split(',');
+            var defW = parseFloat(defWH[0].replace("px",""));
+            var defH = parseFloat(defWH[1].replace("px",""));
+            return array(defW, defH);
+        }
+
         // 座標を取得
         function point_location(id){
             var hid_size = document.getElementById("point_loc"+id).value;
@@ -501,37 +525,6 @@ class CustomHeaderPhotoLinker
             var point_x_y = [parseFloat(raw_point_x_y[0].trim()), parseFloat(raw_point_x_y[1].trim())];
             return point_x_y;
         }
-        // 実際の貼り付け位置 読み込み時 リサイズ時
-        function backwardIconOriginPoint(id){
-            var icon = new Image();//urlから画像を取得用
-
-            //icon.src = document.getElementById("photo_path"+id).value;// 20230406 
-
-
-            // 取得した原点
-            var origin_points = pointGetter(id);
-            // 固定した大きさか？ 20230406廃止
-            //var bool_solid = parseInt(document.getElementById("kotei"+id).value);
-            // 取得した元のキャンパス
-            // 取得した現在のキャンパス (拡大・縮小対応)
-            var magnifi = photoMag(id);// iconとキャンバスの部分の正方形で縮小と拡大の縮尺
-
-            var multiplier = 1;
-            if(bool_solid != 0){
-                multiplier = magnifi;
-            }
-
-
-            // 取得した現在のCanvasの大きさ
-            var cur_canvas_size = curCanvasSize();
-
-            // 取得したアイコンの元の大きさ(拡大・縮小対応)
-            icon.src = document.getElementById("photo_path"+id).value;
-            var icon_w = icon.naturalWidth * multiplier;
-            var icon_h = icon.naturalHeight * multiplier;
-            // 貼り付ける画像のCanvas指示位置
-            return [origin_points[0]*cur_canvas_size[0]-(icon_w / 2), origin_points[1]*cur_canvas_size[1]-(icon_h / 2)];
-        }
         // 現在のcanvasの実際の大きさ
         function curCanvasSize(){
             var client_w = document.getElementById('icon_map').clientWidth;
@@ -541,15 +534,18 @@ class CustomHeaderPhotoLinker
         }
 
         // img要素からCanvasに画像を転送(ロード時＆リサイズ時)
-        function resizePhoto(targetImage)
+        function resizePhoto()
         {
+            cvsStyle = window.getComputedStyle(new_canvas);
             targetImage = document.getElementById('icon_map');// 変更 20230406
             if ( targetImage.complete ) {
                 // 下記はターゲット画像のもともとの大きさになってしまうのでここは変える
-                width = targetImage.naturalWidth;
-                height = targetImage.naturalHeight;
-                //var width = targetImage.width();
-                //var height = targetImage.height();
+                //width = targetImage.naturalWidth;
+                //height = targetImage.naturalHeight;
+                var width = targetImage.width();
+                var height = targetImage.height();
+
+                getScaleOfMap(targetImage);
                 
                 
                 if(lastWidth > 0 || lastHeight > 0)
@@ -576,7 +572,7 @@ class CustomHeaderPhotoLinker
                 // 一番最初に取得した要素の横幅、縦幅を再度取得
                 lastWidth = parseFloat(cvsStyle.width.replace("px",""));
                 lastHeight = parseFloat(cvsStyle.height.replace("px",""));
-                scale = 
+
     
             }
             loadCanvas();
@@ -600,7 +596,8 @@ class CustomHeaderPhotoLinker
                 // テキストフィールドから座標を取得
                 if(arrShapes[i] && arrShapes[i].includes(','))
                 // 座標に図形を書き込む　画像に書き込みたい
-                loadShapePositions(parseFloat(arrShapes[i].split(',')[0]) * parseFloat(cvsStyle.width.replace("px","")), (parseFloat(arrShapes[i].split(',')[1])*parseFloat(cvsStyle.height.replace("px",""))));
+                var icon = iconReIndex(i);
+                loadShapePositions(parseFloat(arrShapes[i].split(',')[0]) * parseFloat(cvsStyle.width.replace("px","")), (parseFloat(arrShapes[i].split(',')[1])*parseFloat(cvsStyle.height.replace("px",""))), icon, icon.width, icon.height);
             }
         }
         //　ユーザー側で必要な処理　クリック時にリンク先に飛ばす
@@ -652,14 +649,19 @@ class CustomHeaderPhotoLinker
                 //alert((cvsStyle.width) + ',' + (cvsStyle.height));
                 lastFocusField.dispatchEvent(e_ch);//カスタマイザーの公開ボタン
                 lastFocusField.dispatchEvent(e_ch2);//カスタマイザーの公開ボタン
-                var arrIndex = (parseFloat(lastFocusField.id.replace('_customize-input-my_loc', ''), 10) - 1);
-                arrShapes[arrIndex] = lastFocusField.value;
-                loadShapePositions(testContext, lastWidth, lastheight, cvsStyle , pointX, pointY, icon, icon.width, icon.height);
+                var arrIndex = (parseFloat(lastFocusField.id.replace('_customize-input-my_loc', ''), 10));
+                arrShapes[arrIndex-1] = lastFocusField.value;// 
+
+                // arrIndexのImgUrlからImageクラスを生成する処理
+                var icon = new Image();//urlから画像を取得用;
+                icon.src = document.getElementById("photo_path"+(arrIndex)).value;
+
+                loadShapePositions(lastWidth, lastHeight, pointX, pointY, icon, icon.width, icon.height);
             }
             //alert(typeof lastFocusField);
         }
         // 図形を指定個所に書く
-        function loadShapePositions(testContext, width, height , cvsStyle, posX, posY, imgUrl, imgWid, imgH){
+        function loadShapePositions(width, height , posX, posY, imgUrl, imgWid, imgH){
             //alert(posX+','+posY);
             var icon_inst = new Image();
             icon_inst.src = imgUrl;
@@ -668,7 +670,7 @@ class CustomHeaderPhotoLinker
                 //testContext.fillStyle = "rgba(" + [255, 255, 150, 0.5] + ")";
                 //testContext.rect(posX / parseFloat(cvsStyle.width.replace("px","")) * width, posY / parseFloat(cvsStyle.height.replace("px","")) * height, 75, 50 ); // canvasで認識しているグリッドの単位がpxとずれているので治す
                 //testContext.arc(posX / parseFloat(cvsStyle.width.replace("px","")) * width - 5, posY / parseFloat(cvsStyle.height.replace("px","")) * height - 5, 20, 0, Math.PI*2, false);
-                testContext.drawImage(icon_inst, (posX / parseFloat(cvsStyle.width.replace("px","")) * width - (imgWid / 2))), (posY / parseFloat(cvsStyle.height.replace("px","")) * height - (imgH / 2)));
+                testContext.drawImage(icon_inst, (posX / parseFloat(cvsStyle.width.replace("px","")) * width - (imgWid*scale / 2))), (posY / parseFloat(cvsStyle.height.replace("px","")) * height - (imgH*scale / 2)));
                 
                 //testContext.fill();
                 //testContext.closePath(); // サブパス閉じる
@@ -691,7 +693,8 @@ class CustomHeaderPhotoLinker
                 arrShapes[i] = loc_points[i].value;//クラスの集合から取得
                 arrTField[i] = lnk_elems[i].value;//クラスの集合から取得　ここ以外(描画以外)で使う
                 if(arrShapes[i].includes(','))
-                loadShapePositions(parseFloat(arrShapes[i].split(',')[0]) * parseFloat(cvsStyle.width.replace("px","")) , (parseFloat(arrShapes[i].split(',')[1])*parseFloat(cvsStyle.height.replace("px",""))));
+                var icon = iconReIndex(i);
+                loadShapePositions(parseFloat(arrShapes[i].split(',')[0]) * parseFloat(cvsStyle.width.replace("px","")) , (parseFloat(arrShapes[i].split(',')[1])*parseFloat(cvsStyle.height.replace("px",""))), icon, icon.width, icon.height);
             }
         }
     
@@ -781,7 +784,7 @@ class CustomHeaderPhotoLinker
             //まず対象を取得する
 
             var arrPathCanvas = [];
-            //arrPathCanvas[i] = arrCanvas[i].split("=>");
+            //arrPathCanvas[i] = oneCanvas.split("=>");
             arrPathCanvas = oneCanvas.value.split("=>");// 一つ一つの親子要素について配列順に入れなおす
             var targetROOT = arrPathCanvas[0];// 一番最初の親要素
             var candyElements;
@@ -821,7 +824,6 @@ class CustomHeaderPhotoLinker
             /*
             var installed = targetElem.parentNode;
             var new_canvas = document.createElement('canvas');
-            //new_canvas.id = "maps";
             new_canvas.id = "icon_map";
             new_canvas.innerHTML = installed.innerHTML;
             targetElem.before(new_canvas);
@@ -916,7 +918,8 @@ class CustomHeaderPhotoLinker
             //これは場所の座標のテキストフィールド　全てに実施
             for(var i = 0; i < arrShapes.length; i++){
                 if(arrShapes[i].includes(','))
-                loadShapePositions(parseFloat(arrShapes[i].split(',')[0]) * parseFloat(cvsStyle.width.replace("px","")), (parseFloat(arrShapes[i].split(',')[1])*parseFloat(cvsStyle.height.replace("px",""))));
+                var icon = iconReIndex(i);
+                loadShapePositions(parseFloat(arrShapes[i].split(',')[0]) * parseFloat(cvsStyle.width.replace("px","")), (parseFloat(arrShapes[i].split(',')[1])*parseFloat(cvsStyle.height.replace("px",""))), icon, icon.width, icon.height);
             }
         }, false);
         
@@ -952,13 +955,13 @@ class CustomHeaderPhotoLinker
             //testContext.beginPath();
             if(custom_mode)
             {
-                var prev_page = document.getElementById('page');// 上部に要素追加に必要
-                var prev_added = document.getElementById('masthead');// 上部に要素追加に必要
+                var prev_page = window.parent.document.getElementById('customize-preview');// 上部に要素追加に必要
+                //var prev_added = window.parent.document.getElementById('customize-save-button-wrapper');// 上部に要素追加に必要
                 var added_elem = document.createElement('div');
                 added_elem.id = 'option_menu';
                 added_elem.innerHTML = '<button id="addPoint">AddPoint</button>';
                 added_elem.style = "width:100%; height:50px;"
-                prev_page.insertBefore(added_elem,prev_added);
+                prev_page.insertBefore(added_elem,null);
             }
     
             //var titleBtn = document.getElementById('customize-controls');//document.getElementById('accordion-section-my_theme_origin_scheme');
@@ -990,7 +993,7 @@ class CustomHeaderPhotoLinker
             }, false);
 
             // 残処理
-            cvsStyle = window.getComputedStyle(new_canvas)
+            cvsStyle = window.getComputedStyle(new_canvas);
     
             resizePhoto();
             loadPointPositions();
@@ -1010,11 +1013,7 @@ class CustomHeaderPhotoLinker
                 //var pageY = e.pageY;
 
                 //他で指定したものを削除する処理
-                var preset_processed_jav = document.getElementsByClassName('test');
                 classList.remove();
-
-
-                var preset_processed_css = document.getElementsByClassName('test');
 
                 //他で指定したものを削除する処理　ここまで
                 
@@ -1094,7 +1093,7 @@ class CustomHeaderPhotoLinker
                     nodeChain = nodeChain.parentNode;
                 }
                 imgFieldOnOff = false;
-    
+                window.parent.document.getElementById("_customize-input-my_control").value = lastFocusImgField.value;
                 initCanvasField(); // 再設定
             }
         }
