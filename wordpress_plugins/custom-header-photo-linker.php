@@ -593,6 +593,7 @@ class CustomHeaderPhotoLinker
                 if(arrShapes[i] && arrShapes[i].includes(',')){
                     // 座標に図形を書き込む　画像に書き込みたい
                     var icon = iconReIndex(i);
+                    console.log(icon);
                     loadShapePositions(parseFloat(arrShapes[i].split(',')[0]) * parseFloat(cvsStyle.width.replace("px","")), (parseFloat(arrShapes[i].split(',')[1])*parseFloat(cvsStyle.height.replace("px",""))), icon, icon.width, icon.height);
                 }
             }
@@ -689,9 +690,11 @@ class CustomHeaderPhotoLinker
             for(var i = 0; i < arrShapes.length; i++){
                 arrShapes[i] = loc_points[i].value;//クラスの集合から取得
                 arrTField[i] = lnk_elems[i].value;//クラスの集合から取得　ここ以外(描画以外)で使う
-                if(arrShapes[i].includes(','))
-                var icon = iconReIndex(i);
-                loadShapePositions(parseFloat(arrShapes[i].split(',')[0]) * parseFloat(cvsStyle.width.replace("px","")) , (parseFloat(arrShapes[i].split(',')[1])*parseFloat(cvsStyle.height.replace("px",""))), icon, icon.width, icon.height);
+                if(arrShapes[i] && arrShapes[i].includes(',')){
+                    var icon = iconReIndex(i);
+                    console.log(icon);
+                    loadShapePositions(parseFloat(arrShapes[i].split(',')[0]) * parseFloat(cvsStyle.width.replace("px","")) , (parseFloat(arrShapes[i].split(',')[1])*parseFloat(cvsStyle.height.replace("px",""))), icon, icon.width, icon.height);
+                }
             }
         }
     
@@ -833,6 +836,7 @@ class CustomHeaderPhotoLinker
                 new_canvas.style.left = "0px";
                 new_canvas.width = targetElem.style.width;
                 new_canvas.height = targetElem.style.height;
+                putImageToCanvas(targetElem,new_canvas.width, new_canvas.height);
             }
             //}
 
