@@ -394,7 +394,6 @@ class CustomHeaderPhotoLinker
         //var canvasNum = 5;
         //var arrCanvas = new Array(canvasNum);// 画像までのパスを示す文字列　非対応
         var oneCanvas = "";
-        var arrElemCanvas = new Array(canvasNum);
         var arrPathCanvas = [];// パスを保存する2次配列
 
         // 画像のスケール
