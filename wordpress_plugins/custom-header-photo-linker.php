@@ -670,7 +670,7 @@ class CustomHeaderPhotoLinker
                 //testContext.fillStyle = "rgba(" + [255, 255, 150, 0.5] + ")";
                 //testContext.rect(posX / parseFloat(cvsStyle.width.replace("px","")) * width, posY / parseFloat(cvsStyle.height.replace("px","")) * height, 75, 50 ); // canvasで認識しているグリッドの単位がpxとずれているので治す
                 //testContext.arc(posX / parseFloat(cvsStyle.width.replace("px","")) * width - 5, posY / parseFloat(cvsStyle.height.replace("px","")) * height - 5, 20, 0, Math.PI*2, false);
-                testContext.drawImage(icon_inst, (posX / parseFloat(cvsStyle.width.replace("px","")) * width - (imgWid*scale / 2))), (posY / parseFloat(cvsStyle.height.replace("px","")) * height - (imgH*scale / 2)));
+                testContext.drawImage(icon_inst, (posX / parseFloat(cvsStyle.width.replace("px","")) * width - (imgWid*scale / 2)), (posY / parseFloat(cvsStyle.height.replace("px","")) * height - (imgH*scale / 2));
                 
                 //testContext.fill();
                 //testContext.closePath(); // サブパス閉じる
