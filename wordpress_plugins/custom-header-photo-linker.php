@@ -381,7 +381,7 @@ class CustomHeaderPhotoLinker
     
         var targetImage = document.getElementById('main-feat-img');// 配列に変えなければならない
         //var targetImages = [];//　貼り付け先の画像Id 文字列から要素を呼び起こして配列に格納する
-        new_canvas = null;// 配列に変えなければならない
+        var new_canvas = document.createElement('canvas');// 配列に変えなければならない
         //var new_canvasArr = [];//　上記のtargetImagesに設定するCanvasを格納 文字列から要素を呼び起こして配列に格納する
         var cvsStyle;// = window.getComputedStyle(new_canvas);// 配列に変えなければならない
         //var canvasStyles = [];//　上記のnew_canvasに格納されている各配列のスタイルを取得 文字列から要素を呼び起こして配列に格納する
@@ -818,8 +818,7 @@ class CustomHeaderPhotoLinker
 
             // 上記で取得したIMGタグについてCANVASタグを設定
             /*
-            var installed = targetElem.parentNode;
-            var new_canvas = document.createElement('canvas');
+            //var installed = targetElem.parentNode;
             new_canvas.id = "icon_map";
             new_canvas.innerHTML = installed.innerHTML;
             targetElem.before(new_canvas);
