@@ -533,7 +533,7 @@ class CustomHeaderPhotoLinker
         function imageRefCheck(){
             var imgRange = new Array();
             var element = new Image();
-            var imgClass = document.getElementsClassByName("photo_path");
+            var imgClass = document.getElementsByClassName("photo_path");
             for(var i = 0; i < imgClass.length; i++){
                 if(imgClass[i].value) ;
                 element.src = imgClass[i].value;
