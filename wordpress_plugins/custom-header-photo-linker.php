@@ -539,7 +539,7 @@ class CustomHeaderPhotoLinker
                 element.src = imgClass[i].value;
                 if(element.width) element.width = 0; 
                 if(element.height) element.height = 0; 
-                imgRange.push(array(element.width*scale, element.height*scale));
+                imgRange.push([element.width*scale, element.height*scale]);
             }
             return imgRange;
         }
