@@ -610,6 +610,7 @@ class CustomHeaderPhotoLinker
                     var icon = iconReIndex(i);
                     console.log(icon);
                     loadShapePositions(parseFloat(arrShapes[i].split(',')[0]) * parseFloat(cvsStyle.width.replace("px","")), (parseFloat(arrShapes[i].split(',')[1])*parseFloat(cvsStyle.height.replace("px",""))), icon, icon.width, icon.height);
+                    console.log("***");
                 }
             }
         }
@@ -920,7 +921,9 @@ class CustomHeaderPhotoLinker
             for(var i = 0; i < arrShapes.length; i++){
                 if(arrShapes[i].includes(','))
                 var icon = iconReIndex(i);
+                console.log(icon);
                 loadShapePositions(parseFloat(arrShapes[i].split(',')[0]) * parseFloat(cvsStyle.width.replace("px","")), (parseFloat(arrShapes[i].split(',')[1])*parseFloat(cvsStyle.height.replace("px",""))), icon, icon.width, icon.height);
+                console.log("***");
             }
         }, false);
         
@@ -1015,7 +1018,7 @@ class CustomHeaderPhotoLinker
                 //var pageY = e.pageY;
 
                 //他で指定したものを削除する処理
-                classList.remove();
+                elementUnderMouse.classList.remove(active_pre_process);
 
                 //他で指定したものを削除する処理　ここまで
                 
