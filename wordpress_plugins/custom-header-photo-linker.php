@@ -531,9 +531,9 @@ class CustomHeaderPhotoLinker
         }
         // img要素から
         function imageRefCheck(){
-            var imgRange = new array();
+            var imgRange = new Array();
             var element = new Image();
-            var imgClass = document.getElementClassByName("photo_path");
+            var imgClass = document.getElementsClassByName("photo_path");
             for(var i = 0; i < imgClass.length; i++){
                 if(imgClass[i].value) ;
                 element.src = imgClass[i].value;
