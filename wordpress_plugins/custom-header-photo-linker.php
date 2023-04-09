@@ -1016,9 +1016,11 @@ class CustomHeaderPhotoLinker
                 
                 //var pageX = e.pageX;
                 //var pageY = e.pageY;
-
+                var removedClass = window.parent.document.getElementsByClassName("active_pre_process");
+                for(var i = 0; removedClass.length; i++){
+                    removedClass[i].classList.remove("active_pre_process");
+                }
                 //他で指定したものを削除する処理
-                elementUnderMouse.classList.remove(active_pre_process);
 
                 //他で指定したものを削除する処理　ここまで
                 
@@ -1044,7 +1046,7 @@ class CustomHeaderPhotoLinker
                 // 透明にして背景色
                 //elementUnderMouse.style.opacity = "0.5";
                 //elementUnderMouse.style.display = "block";
-                elementUnderMouse.classList.add(active_pre_process);
+                elementUnderMouse.classList.add("active_pre_process");
 
 
                 lastFocusImgField.value = "";
