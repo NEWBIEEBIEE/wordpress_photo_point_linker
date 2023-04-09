@@ -286,11 +286,11 @@ class CustomHeaderPhotoLinker
             echo <<<EOF
             <input type='hidden' id='maps' value="{$map}">
             <input type="hidden" id="point_loc1" class="location_point" value="{$location1}">
-            <input type="hidden" id="photo_path1" value="{$photo_path1}">
+            <input type="hidden" id="photo_path1" class="photo_path" value="{$photo_path1}">
             <input type="hidden" id="hidden_link1" class="point_link" value="{$link1}">
             <input type="hidden" id="current_WH1" value="">
             <input type="hidden" id="point_loc2" class="location_point" value="{$location2}">
-            <input type="hidden" id="photo_path2" value="{$photo_path2}">
+            <input type="hidden" id="photo_path2" class="photo_path" value="{$photo_path2}">
             <input type="hidden" id="hidden_link2" class="point_link" value="{$link2}">
             <input type="hidden" id="current_WH2" value="">
             EOF;
@@ -512,6 +512,7 @@ class CustomHeaderPhotoLinker
             var icon_size = naturalIconSize(path);//アイコン画像の大きさ取得
             var origin_mid_x_point = (icon_size[0] / 2) + icon_x_point;//icon_x_pointはアイコンの左上座標
             var origin_mid_y_point = (icon_size[1] / 2) + icon_y_point;//同上
+            return array(origin_mid_x_point, origin_mid_y_point);
         }
 
         // 要素からそのアイコンの座標取得
@@ -527,6 +528,20 @@ class CustomHeaderPhotoLinker
             var client_h = document.getElementById('icon_map').clientHeight;
 
             return [client_w, client_h];
+        }
+        // img要素から
+        function imageRefCheck(){
+            var imgRange = new array();
+            var element = new Image();
+            var imgClass = document.getElementClassByName("photo_path");
+            for(var i = 0; i < imgClass.length; i++){
+                if(imgClass[i].value) ;
+                element.src = imgClass[i].value;
+                if(element.width) element.width = 0; 
+                if(element.height) element.height = 0; 
+                imgRange.push(array(element.width*scale, element.height*scale));
+            }
+            return imgRange;
         }
 
         // img要素からCanvasに画像を転送(ロード時＆リサイズ時)
@@ -847,7 +862,8 @@ class CustomHeaderPhotoLinker
         document.addEventListener("mouseover", function(event) {
             console.log(event.target); //event.targetの部分がマウスオーバーされている要素になっています
             
-            if(icon_map == event.target)
+            icon_points = imageRefCheck();
+            if(new_canvas == event.target)
             {
                 // 該当座標でマウスポインターの変換
 
@@ -865,16 +881,16 @@ class CustomHeaderPhotoLinker
                                 
                                 mouseDownOnCanvasIconBool = true;
 
-                                if(icon_map != null)
+                                if(icon_point != null)
                                 {
-                                    icon_map.style.cursor = "pointer";
+                                    icon_point.style.cursor = "pointer";
                                 }
     
                                 // リンクに飛ばす処理
                                 //if(lnk_elems[i].value)
                                 //location.href = lnk_elems[i].value;// canvas内の図形のリンクに飛ばす
                             }else{ // 図形を指していない場合はマウスポインターを元に戻す
-                                icon_map.style.cursor = defMousePointer;
+                                icon_point.style.cursor = defMousePointer;
                                 mouseDownOnCanvasIconBool = false;
                             }
                         }
@@ -885,17 +901,6 @@ class CustomHeaderPhotoLinker
     
         new_canvas.addEventListener('load', function(){
             resizePhoto(targetImage);
-            //loadPointPositions();
-            // 上記のマウスオーバー関数
-            icon_map = document.getElementById("icon_map");
-
-            if (icon_map === null){
-                // 要素が存在しない場合の処理
-            } else {
-                // 要素が存在する場合の処理
-            }
-
-
             loadCanvas();
         }, false);
     
