@@ -1045,7 +1045,7 @@ class CustomHeaderPhotoLinker
                 var removedClass = document.getElementsByClassName("active_pre_process");
                 for(var i = 0; removedClass.length; i++){
                     if(removedClass[i].getAttribute('alt')){
-                        if(removedClass[i]..getAttribute('alt') == "")
+                        if(removedClass[i].getAttribute('alt') == "")
                     }else{
                         removedClass[i].setAttribute('alt', ' ');
                     }
