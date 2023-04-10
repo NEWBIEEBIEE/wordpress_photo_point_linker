@@ -864,11 +864,12 @@ class CustomHeaderPhotoLinker
                 new_canvas.id = "icon_map";
                 installed.style.position = "relative";
                 new_canvas.style.position = "absolute";
+                new_canvas.style.position = "block";
                 new_canvas.style.zIndex = "999";
                 new_canvas.style.top = "0px";
                 new_canvas.style.left = "0px";
-                new_canvas.width = targetImage.width;
-                new_canvas.height = targetImage.height;
+                new_canvas.width = installed.offsetWidth;
+                new_canvas.height = installed.offsetHeight;
                 console.log("ここからCANVASデフォルトのサイズ");
                 console.log(new_canvas.width);
                 console.log(targetImage.width);
@@ -1060,6 +1061,9 @@ class CustomHeaderPhotoLinker
                     }
                     removedClass[i].classList.add("photo-linker-processed");
                     removedClass[i].classList.remove("active_pre_process");
+
+                    document.getElementById('icon_map').remove(); 
+
                     //removedClass[i].classList.add("");
 
                 }
