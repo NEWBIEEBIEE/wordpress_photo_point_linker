@@ -450,8 +450,10 @@ class CustomHeaderPhotoLinker
             return array((arrIconWH[0])*scale, (arrIconWH[1])*scale);
         }
         function iconReIndex(index){
+            console.log(iconReIndex);
             var iconImg = new Image();
             iconImg.src = document.getElementById("photo_path" + index).value;
+            console.log(document.getElementById("photo_path" + index).value);
             console.log("iconImg.src:" + document.getElementById("photo_path" + index).value);
             return [iconImg, document.getElementById("photo_path" + index).width, document.getElementById("photo_path" + index).height];
         }
@@ -1042,7 +1044,15 @@ class CustomHeaderPhotoLinker
                 //var pageY = e.pageY;
                 var removedClass = document.getElementsByClassName("active_pre_process");
                 for(var i = 0; removedClass.length; i++){
+                    if(removedClass[i].getAttribute('alt')){
+                        if(removedClass[i]..getAttribute('alt') == "")
+                    }else{
+                        removedClass[i].setAttribute('alt', ' ');
+                    }
+                    removedClass[i].classList.add("photo-linker-processed");
                     removedClass[i].classList.remove("active_pre_process");
+                    //removedClass[i].classList.add("");
+
                 }
                 //他で指定したものを削除する処理
 
