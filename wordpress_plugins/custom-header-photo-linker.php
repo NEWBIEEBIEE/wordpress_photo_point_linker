@@ -355,14 +355,14 @@ class CustomHeaderPhotoLinker
             right: 0;
             bottom: 0;
             left: 0;*/
-            background-color: #AFF;
+            background-color: #57F;
             //opacity: 0.5;
             display:inline-block;
         }
         .active_pre_process{
             opacity: 0.5;
             display: block;
-            background-color: #AAF;
+            background-color: #F83;
         }
         </style>
         <script type="text/javascript">
@@ -453,7 +453,7 @@ class CustomHeaderPhotoLinker
             var iconImg = new Image();
             iconImg.src = document.getElementById("photo_path" + index).value;
             console.log("iconImg.src:" + document.getElementById("photo_path" + index).value);
-            return iconImg;
+            return [iconImg, document.getElementById("photo_path" + index).width, document.getElementById("photo_path" + index).height];
         }
         // スケールを返す
         function getScaleOfMap(targetImage){
@@ -529,6 +529,7 @@ class CustomHeaderPhotoLinker
         }
         // img要素から
         function imageRefCheck(){
+            console.log("imageRefCheck");
             var imgRange = new Array();
             var element = new Image();
             var imgClass = document.getElementsByClassName("photo_path");
@@ -545,6 +546,7 @@ class CustomHeaderPhotoLinker
         // img要素からCanvasに画像を転送(ロード時＆リサイズ時)
         function resizePhoto()
         {
+            console.log("resizePhoto");
             cvsStyle = window.getComputedStyle(new_canvas);
             targetImage = document.getElementById('targetImage');// 変更 20230406
             if (targetImage) {
@@ -590,32 +592,27 @@ class CustomHeaderPhotoLinker
         }
         // リサイズ対応 画像を取得し、再度貼り付け治す 画像本来の大きさになってしまっているので変えること
         function putImageToCanvas(width, height) {
+            console.log("putImageToCanvas");
             testContext.drawImage(targetElem, 0, 0, width, height);
-        }
-        // 画像の中心点と画像からの切り取りを行う際に必要な座標を幅と高さから出す
-        function cutImagePointInfo(img,cut_wid,cut_height){
-            var width = img.naturalWidth;
-            var height = img.naturalHeight;
-            var mid_point = [width/2,height/2];
-            var cut_st_point = [((width/2) - (cut_width/2)),((height/2) - (cut_height/2))];
-            return [mid_point, cut_st_point];
         }
 
         //　リサイズ対応　　一つのキャンバスにつき一回は必要な処理 再描写＆一番最初の描写
         function loadCanvas(){
+            console.log("loadCanvas");
             for(var i = 0; i < arrShapes.length; i++){
                 // テキストフィールドから座標を取得
                 if(arrShapes[i] && arrShapes[i].includes(',')){
                     // 座標に図形を書き込む　画像に書き込みたい
                     var icon = iconReIndex(i+1);
                     console.log(icon);
-                    loadShapePositions(parseFloat(arrShapes[i].split(',')[0]) * parseFloat(cvsStyle.width.replace("px","")), (parseFloat(arrShapes[i].split(',')[1])*parseFloat(cvsStyle.height.replace("px",""))), icon, icon.width, icon.height);
+                    loadShapePositions(parseFloat(arrShapes[i].split(',')[0]) * parseFloat(cvsStyle.width.replace("px","")), (parseFloat(arrShapes[i].split(',')[1])*parseFloat(cvsStyle.height.replace("px",""))), icon[0], icon[1], icon[2]);
                     console.log("***");
                 }
             }
         }
         //　ユーザー側で必要な処理　クリック時にリンク先に飛ばす
         function mouseDownListner(e) {
+            console.log("mouseDownListner(e)");
             /*
             // 要素の短径を取得し、全体からのマウス位置に減算すると要素内でのマウスクリック位置
             var rect = e.target.getBoundingClientRect();
@@ -645,6 +642,7 @@ class CustomHeaderPhotoLinker
     
         // pointXとpointYにクリックした要素内の座標を格納
         function getCanvasPointXY(e){
+            console.log("getCanvasPointXY(e)");
             var rect = e.target.getBoundingClientRect();
             pointX = (e.clientX - rect.left);
             pointY = (e.clientY - rect.top);
@@ -652,6 +650,7 @@ class CustomHeaderPhotoLinker
         }
         // 座標を最後にアクセスしたテキストフィールドに反映させる。(カスタマイザー)
         function setXYPointToText(e){
+            console.log("setXYPointToText(e)");
             if(lastFocusField) // 初期値なし
             if((lastFocusField.id.includes('_customize-input-my_loc'))){
                 let e_ch = new Event('change');
@@ -676,6 +675,8 @@ class CustomHeaderPhotoLinker
         }
         // 図形を指定個所に書く
         function loadShapePositions(width, height , posX, posY, imgUrl, imgWid, imgH){
+            console.log("loadShapePositions");
+
             //alert(posX+','+posY);
             var icon_inst = new Image();
             icon_inst.src = imgUrl;
@@ -692,6 +693,7 @@ class CustomHeaderPhotoLinker
         }
         // デフォルト値 初期設定　hidden要素取得
         function loadPointPositions(){
+            console.log("loadPointPositions");
             // リンク情報
             lnk_elems = document.getElementsByClassName("point_link");// widgetに追加するhidden input
             // XY座標
@@ -716,6 +718,7 @@ class CustomHeaderPhotoLinker
     
         // 子要素の走査
         function scanChildElems(elem, tagName, path, minMax, layerNum){
+            console.log("scanChildElems");
             var addedPath = path;
             var result = false;
             var addedTagAttr = "";
@@ -768,6 +771,7 @@ class CustomHeaderPhotoLinker
     
         // 要素から該当タグの要素取得
         function targetTAGChildParser(targetElem, remainTagArr, terminal){
+            console.log("targetTAGChildParser");
             var elemBox = targetElem;
             if(elemBox.tagName == terminal){
     
@@ -791,6 +795,7 @@ class CustomHeaderPhotoLinker
         // 文字列に入っている該当の要素から要素取得
         // canvas要素を追加する
         function initCanvasField(){
+            console.log("initCanvasField");
             const regexpID = /\{\$id:(.+)\}/g;
             const regexpCLS = /\{\$cls:(.+)\[?(\d*)\]?\}/g;
             const regexpTAG = /\{\$tag:(.+)\[?(\d*)\]?\}/g;
@@ -881,11 +886,11 @@ class CustomHeaderPhotoLinker
                 //座標取得
                 var mouseX1 = e.clientX - rect.left;
                 var mouseY1 = e.clientY - rect.top;
-                // 押下した座標が図形だった場合、リンク先に飛ぶ　±20は図形の大きさ
+                // 押下した座標が図形だった場合、リンク先に飛ぶ　±icon_point/2は図形の大きさ
                 for(var i = 0; i < arrShapes.length; i++){
                     if(arrShapes[i] && arrShapes[i].includes(',')){
-                        if (mouseX1 > parseFloat(arrShapes[i].split(',')[0]) * parseFloat(cvsStyle.width.replace("px",""))-20 && mouseX1 < parseFloat(arrShapes[i].split(',')[0]) * parseFloat(cvsStyle.width.replace("px","")) + 20) {
-                            if (mouseY1 > parseFloat(arrShapes[i].split(',')[1]) * parseFloat(cvsStyle.height.replace("px",""))-20 && mouseY1 < parseFloat(arrShapes[i].split(',')[1]) * parseFloat(cvsStyle.height.replace("px","")) + 20) {
+                        if (mouseX1 > parseFloat(arrShapes[i].split(',')[0]) * parseFloat(cvsStyle.width.replace("px",""))-icon_point[i][0]/2 && mouseX1 < parseFloat(arrShapes[i].split(',')[0]) * parseFloat(cvsStyle.width.replace("px","")) + icon_point[i][1]/2) {
+                            if (mouseY1 > parseFloat(arrShapes[i].split(',')[1]) * parseFloat(cvsStyle.height.replace("px",""))-icon_point[i][0]/2 && mouseY1 < parseFloat(arrShapes[i].split(',')[1]) * parseFloat(cvsStyle.height.replace("px","")) + icon_point[i][1]/2) {
                                 
                                 mouseDownOnCanvasIconBool = true;
 
