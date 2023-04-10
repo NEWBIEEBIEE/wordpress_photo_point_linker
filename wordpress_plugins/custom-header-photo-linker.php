@@ -989,7 +989,7 @@ class CustomHeaderPhotoLinker
                 
     
                     var titleBtn = document.getElementById('addPoint');
-                    titleBtn.addEventListener("click", function(){
+                    /*titleBtn.addEventListener('click', function(){
                         setAddPoint = true;
                         console.log("AddClick!");
                         for(var i = 0; i < arrTField.length; i++){
@@ -1001,7 +1001,7 @@ class CustomHeaderPhotoLinker
                             }, false);
                         }
 
-                    }, false);
+                    }, false);*/
                 }
         
                 //指定する(画像領域)
