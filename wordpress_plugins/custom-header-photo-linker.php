@@ -390,6 +390,7 @@ class CustomHeaderPhotoLinker
         //var canvasNum = 5;
         //var arrCanvas = new Array(canvasNum);// 画像までのパスを示す文字列　非対応
         var oneCanvas = "";
+        var installed;
         var arrPathCanvas = [];// パスを保存する2次配列
 
         // 画像のスケール
@@ -450,12 +451,12 @@ class CustomHeaderPhotoLinker
             return array((arrIconWH[0])*scale, (arrIconWH[1])*scale);
         }
         function iconReIndex(index){
-            console.log(iconReIndex);
-            var iconImg = new Image();
-            iconImg.src = document.getElementById("photo_path" + index).value;
+            console.log("iconReIndex");
+            //var iconImg = new Image();
+            //iconImg.src = document.getElementById("photo_path" + index).value;
             console.log(document.getElementById("photo_path" + index).value);
             console.log("iconImg.src:" + document.getElementById("photo_path" + index).value);
-            return [iconImg, document.getElementById("photo_path" + index).width, document.getElementById("photo_path" + index).height];
+            //return [iconImg.src, iconImg.naturalWidth, iconImg.naturalHeight];
         }
         // スケールを返す
         function getScaleOfMap(targetImage){
@@ -555,8 +556,6 @@ class CustomHeaderPhotoLinker
                 // 下記はターゲット画像のもともとの大きさになってしまうのでここは変える
                 //width = targetImage.naturalWidth;
                 //height = targetImage.naturalHeight;
-                var width = targetImage.width();
-                var height = targetImage.height();
 
                 //getScaleOfMap(targetImage);
                 
@@ -579,9 +578,8 @@ class CustomHeaderPhotoLinker
                     }
                 }
                 // 対象Canvasの大きさを固定　ここも変える
-                new_canvas.width = width;
-                new_canvas.height = height;
-                //testContext = new_canvas.getContext("2d");
+                new_canvas.width = installed.offsetWidth;
+                new_canvas.height = installed.offsetHeight;
                 // Canvasの大きさを固定し画像を再度貼り付け治す処理
                 putImageToCanvas(width, height);
                 // 一番最初に取得した要素の横幅、縦幅を再度取得
@@ -595,7 +593,7 @@ class CustomHeaderPhotoLinker
         // リサイズ対応 画像を取得し、再度貼り付け治す 画像本来の大きさになってしまっているので変えること
         function putImageToCanvas(width, height) {
             console.log("putImageToCanvas");
-            testContext.drawImage(targetElem, 0, 0, width, height);
+            //testContext.drawImage(targetElem, 0, 0, width, height);
         }
 
         //　リサイズ対応　　一つのキャンバスにつき一回は必要な処理 再描写＆一番最初の描写
@@ -605,9 +603,9 @@ class CustomHeaderPhotoLinker
                 // テキストフィールドから座標を取得
                 if(arrShapes[i] && arrShapes[i].includes(',')){
                     // 座標に図形を書き込む　画像に書き込みたい
-                    var icon = iconReIndex(i+1);
-                    console.log(icon);
-                    loadShapePositions(parseFloat(arrShapes[i].split(',')[0]) * parseFloat(cvsStyle.width.replace("px","")), (parseFloat(arrShapes[i].split(',')[1])*parseFloat(cvsStyle.height.replace("px",""))), icon[0], icon[1], icon[2]);
+                    //var icon = iconReIndex(i+1);
+                    //console.log(icon);
+                    //loadShapePositions(parseFloat(arrShapes[i].split(',')[0]) * parseFloat(cvsStyle.width.replace("px","")), (parseFloat(arrShapes[i].split(',')[1])*parseFloat(cvsStyle.height.replace("px",""))), icon[0], icon[1], icon[2]);
                     console.log("***");
                 }
             }
@@ -856,7 +854,7 @@ class CustomHeaderPhotoLinker
 
             if(targetElem){
                 console.log("CANVAS設定");
-                var installed = targetElem.parentNode;
+                installed = targetElem.parentNode;
                 installed.appendChild(new_canvas);
                 targetElem.id = "targetImage";
 
@@ -944,9 +942,9 @@ class CustomHeaderPhotoLinker
             //これは場所の座標のテキストフィールド　全てに実施
             for(var i = 0; i < arrShapes.length; i++){
                 if(arrShapes[i].includes(','))
-                var icon = iconReIndex(i+1);
+                //var icon = iconReIndex(i+1);
                 console.log(icon);
-                loadShapePositions(parseFloat(arrShapes[i].split(',')[0]) * parseFloat(cvsStyle.width.replace("px","")), (parseFloat(arrShapes[i].split(',')[1])*parseFloat(cvsStyle.height.replace("px",""))), icon[0], icon[1], icon[2]);
+                //loadShapePositions(parseFloat(arrShapes[i].split(',')[0]) * parseFloat(cvsStyle.width.replace("px","")), (parseFloat(arrShapes[i].split(',')[1])*parseFloat(cvsStyle.height.replace("px",""))), icon[0], icon[1], icon[2]);
                 console.log("***");
             }
         }, false);
