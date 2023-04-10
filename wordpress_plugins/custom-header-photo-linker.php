@@ -934,7 +934,7 @@ class CustomHeaderPhotoLinker
                 if(arrShapes[i].includes(','))
                 var icon = iconReIndex(i+1);
                 console.log(icon);
-                loadShapePositions(parseFloat(arrShapes[i].split(',')[0]) * parseFloat(cvsStyle.width.replace("px","")), (parseFloat(arrShapes[i].split(',')[1])*parseFloat(cvsStyle.height.replace("px",""))), icon, icon.width, icon.height);
+                loadShapePositions(parseFloat(arrShapes[i].split(',')[0]) * parseFloat(cvsStyle.width.replace("px","")), (parseFloat(arrShapes[i].split(',')[1])*parseFloat(cvsStyle.height.replace("px",""))), icon[0], icon[1], icon[2]);
                 console.log("***");
             }
         }, false);
