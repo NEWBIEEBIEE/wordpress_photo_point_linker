@@ -805,17 +805,17 @@ class CustomHeaderPhotoLinker
     
             //for(var i = 0; i < arrCanvas.length; i++){
             var u = 0;
-            //arrCanvas[i] = window.parent.document.getElementById("_customize-input-my_control" + (i+1)).value;
             
             oneCanvas = window.parent.document.getElementById("_customize-input-my_control");// 修正必要
             // 上記に対してCANVASタグを追加する
             //まず対象を取得する
+            console.log("CANVAS VALUE:"+oneCanvas.value);
 
             var arrPathCanvas = [];
-            //arrPathCanvas[i] = oneCanvas.split("=>");
             arrPathCanvas = oneCanvas.value.split("=>");// 一つ一つの親子要素について配列順に入れなおす
             var targetROOT = arrPathCanvas[0];// 一番最初の親要素
             var candyElements;
+            if(arrPathCanvas === [])
             for(var q = 0; q < arrPathCanvas.length; q++){
                 var idMatch = regexpID.test(targetROOT);
                 var clsMatch = regexpCLS.test(targetROOT);
@@ -846,6 +846,8 @@ class CustomHeaderPhotoLinker
                     break;
                 }
                 targetROOT = arrPathCanvas[q+1];// 次の子の要素をセット　この時にtargetElemには目的の子要素までの実際の要素が入っている
+            }else{
+                targetElem = document.getElementsByClassName("active_pre_process")[0];
             }
 
             // 上記で取得したIMGタグについてCANVASタグを設定
@@ -853,6 +855,7 @@ class CustomHeaderPhotoLinker
                 new_canvas = document.createElement('canvas');
 
             if(targetElem){
+                console.log("CANVAS設定");
                 var installed = targetElem.parentNode;
                 installed.appendChild(new_canvas);
                 targetElem.id = "targetImage";
@@ -1001,7 +1004,7 @@ class CustomHeaderPhotoLinker
                             for(var i = 0; i < arrTField.length; i++){
                                 arrTField[i] = window.parent.document.getElementById('_customize-input-my_loc' + (i+1)); // iframeしているときは外側に走査走らないためwindow指定
                                 //if(!arrTField[i]){ return false;}
-                                //alert(arrTField[i].nodeName);
+                                alert(arrTField[i].nodeName);
                                 arrTField[i].addEventListener('focus', function(e) {
                                     lastFocusField = e.currentTarget;
                                 }, false);
