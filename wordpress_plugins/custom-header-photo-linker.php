@@ -869,6 +869,12 @@ class CustomHeaderPhotoLinker
                 new_canvas.style.left = "0px";
                 new_canvas.width = targetImage.width;
                 new_canvas.height = targetImage.height;
+                console.log("ここからCANVASデフォルトのサイズ");
+                console.log(new_canvas.width);
+                console.log(targetImage.width);
+                console.log(new_canvas.height);
+                console.log(targetImage.height);
+
                 putImageToCanvas(targetElem,new_canvas.width, new_canvas.height);
             }
             //}
