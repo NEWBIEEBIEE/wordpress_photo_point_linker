@@ -376,11 +376,8 @@ class CustomHeaderPhotoLinker
         var blockElems = ['ADDRESS', 'BLOCKQUOTE', 'CENTER', 'DIR', 'DIV', 'DL', 'FIELDSET', 'FORM', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'HR', 'ISINDEX', 'MENU', 'NOFRAMES', 'NOSCRIPT', 'OL', 'P', 'PRE', 'TABLE', 'UL', 'LI', 'OL', 'ARTICLE', 'FIGURE'];
     
         var targetImage = ""
-        //var targetImages = [];//　貼り付け先の画像Id 文字列から要素を呼び起こして配列に格納する
-        var new_canvas = document.createElement('canvas');// 配列に変えなければならない
-        //var new_canvasArr = [];//　上記のtargetImagesに設定するCanvasを格納 文字列から要素を呼び起こして配列に格納する
-        var cvsStyle;// = window.getComputedStyle(new_canvas);// 配列に変えなければならない
-        //var canvasStyles = [];//　上記のnew_canvasに格納されている各配列のスタイルを取得 文字列から要素を呼び起こして配列に格納する
+        var new_canvas = document.createElement('canvas');
+        var cvsStyle;
     
         var pointX = -1;
         var pointY = -1;
@@ -425,7 +422,9 @@ class CustomHeaderPhotoLinker
         // 対象画像領域指定オンオフ
         var imgFieldOnOff = false;
 
-    
+        // ボタン
+        var titleBtn;
+
         // 2022追加 追加canvasについてid取得用
         var icons_map = null;
         // CANVAS範囲配列初期設定
@@ -626,7 +625,6 @@ class CustomHeaderPhotoLinker
                     if (mouseX1 > parseFloat(arrShapes[i].split(',')[0]) * parseFloat(cvsStyle.width.replace("px",""))-20 && mouseX1 < parseFloat(arrShapes[i].split(',')[0]) * parseFloat(cvsStyle.width.replace("px","")) + 20) {
                         if (mouseY1 > parseFloat(arrShapes[i].split(',')[1]) * parseFloat(cvsStyle.height.replace("px",""))-20 && mouseY1 < parseFloat(arrShapes[i].split(',')[1]) * parseFloat(cvsStyle.height.replace("px","")) + 20) {
 
-
                             // リンクに飛ばす処理
                             if(lnk_elems[i].value)
                             location.href = lnk_elems[i].value;// canvas内の図形のリンクに飛ばす
@@ -690,10 +688,6 @@ class CustomHeaderPhotoLinker
             lnk_elems = document.getElementsByClassName("point_link");// widgetに追加するhidden input
             // XY座標
             var loc_points = document.getElementsByClassName("location_point");// widgetに追加するhidden input
-            //	Canvas情報(どのキャンバスにするか選択) & CANVASのIDにて要素取得
-            //for(var i = 0; i < canvasNum; i++){
-            //    "maps_" + i;
-            //}
     
             // 此処に追加
             // カスタマイザーのテキストフィールド上から反映
@@ -980,7 +974,6 @@ class CustomHeaderPhotoLinker
                 if(custom_mode)
                 {
                     var prev_page = window.parent.document.getElementById('customize-preview');// 上部に要素追加に必要
-                    //var prev_added = window.parent.document.getElementById('customize-save-button-wrapper');// 上部に要素追加に必要
                     var added_elem = document.createElement('div');
                     added_elem.id = 'option_menu';
                     added_elem.innerHTML = '<button id="addPoint">AddPoint</button>';
@@ -988,10 +981,10 @@ class CustomHeaderPhotoLinker
                     prev_page.insertBefore(added_elem,null);
                 
     
-                    var titleBtn = document.getElementById('addPoint');
-                    /*titleBtn.addEventListener('click', function(){
+                    titleBtn = window.parent.document.getElementById('addPoint');
+                    titleBtn.addEventListener('click', function(){
                         setAddPoint = true;
-                        console.log("AddClick!");
+                        alert("AddClick!");
                         for(var i = 0; i < arrTField.length; i++){
                             arrTField[i] = window.parent.document.getElementById('_customize-input-my_loc' + (i+1)); // iframeしているときは外側に走査走らないためwindow指定
                             //if(!arrTField[i]){ return false;}
@@ -1001,7 +994,7 @@ class CustomHeaderPhotoLinker
                             }, false);
                         }
 
-                    }, false);*/
+                    }, false);
                 }
         
                 //指定する(画像領域)
@@ -1028,12 +1021,8 @@ class CustomHeaderPhotoLinker
         // 指定した要素に対して場所をフィールドに記載し、色付けてわかるようにする。
         document.body.onclick = (e) => {
 
-            if(custom_mode) e.preventDefault();
-
             if(imgFieldOnOff){
-                // デフォルトのイベントをキャンセル
-                e.preventDefault();
-                
+
                 //var pageX = e.pageX;
                 //var pageY = e.pageY;
                 var removedClass = document.getElementsByClassName("active_pre_process");
@@ -1048,23 +1037,15 @@ class CustomHeaderPhotoLinker
 
                     document.getElementById('icon_map').remove(); 
 
-                    //removedClass[i].classList.add("");
-
                 }
-                //他で指定したものを削除する処理
-
-                //他で指定したものを削除する処理　ここまで
                 
                 var rect = e.target.getBoundingClientRect();
-                //var elementUnderMouse = document.elementFromPoint(pageX, pageY);
                 var elementUnderMouse = document.elementFromPoint(rect.left, rect.top);
                 
                 if(setAddPoint){ lastFocusFieldOfPoint.value= "" + rect.left + ", " + rect.top;
                 }
                 setAddPoint = false;
 
-
-                //console.log(pageX + ", " + pageY + " :" + elementUnderMouse);
                 console.log(rect.left + ", " + rect.top + " :" + elementUnderMouse);
                 //const range = document.createRange();
                 //range.selectNodeContents(elementUnderMouse);
@@ -1073,15 +1054,8 @@ class CustomHeaderPhotoLinker
                 //selection.removeAllRanges();
                 //selection.addRange(range);
     
-                //var tagName = elementUnderMouse.tagName;
-                //if(tagName != 'IMG'){
-                //	alert(tagName);	
-                //}
                 var nodeChain = elementUnderMouse;
                 //elementUnderMouse.style.backgroundColor = "#FFFF00";
-                // 透明にして背景色
-                //elementUnderMouse.style.opacity = "0.5";
-                //elementUnderMouse.style.display = "block";
                 nodeChain.classList.toggle("active_pre_process");
 
 
@@ -1092,7 +1066,6 @@ class CustomHeaderPhotoLinker
                         lastFocusImgField.value += "=>";
                     }
                     if(nodeChain.tagName){
-                        //lastFocusImgField.value += "{\$tag:" + nodeChain.tagName + "}";
                         lastFocusImgField.value = "{\$tag:" + nodeChain.nodeName + "}" + lastFocusImgField.value;
                         //　要素を繰り上がる
                     }
