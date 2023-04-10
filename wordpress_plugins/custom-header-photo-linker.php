@@ -867,8 +867,8 @@ class CustomHeaderPhotoLinker
                 new_canvas.style.zIndex = "999";
                 new_canvas.style.top = "0px";
                 new_canvas.style.left = "0px";
-                new_canvas.width = targetElem.style.width;
-                new_canvas.height = targetElem.style.height;
+                new_canvas.width = targetImage.width;
+                new_canvas.height = targetImage.height;
                 putImageToCanvas(targetElem,new_canvas.width, new_canvas.height);
             }
             //}
@@ -877,11 +877,11 @@ class CustomHeaderPhotoLinker
         }
     
         // マウスオーバー処理
-        document.addEventListener("mouseover", function(event) {
-            console.log(event.target); //event.targetの部分がマウスオーバーされている要素になっています
+        document.addEventListener("mouseover", function(e) {
+            console.log(e.target); //event.targetの部分がマウスオーバーされている要素になっています
             
             icon_points = imageRefCheck();
-            if(new_canvas == event.target)
+            if(new_canvas == e.target)
             {
                 // 該当座標でマウスポインターの変換
 
