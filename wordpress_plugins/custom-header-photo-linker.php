@@ -1080,7 +1080,7 @@ class CustomHeaderPhotoLinker
                 // 透明にして背景色
                 //elementUnderMouse.style.opacity = "0.5";
                 //elementUnderMouse.style.display = "block";
-                elementUnderMouse.classList.toggle("active_pre_process");
+                nodeChain.classList.toggle("active_pre_process");
 
 
                 lastFocusImgField.value = "";
