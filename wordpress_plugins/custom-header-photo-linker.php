@@ -269,7 +269,6 @@ class CustomHeaderPhotoLinker
         }
     }
 
-
     function hiddenInformations() {
         $map = get_option("my_setting");
         $map = preg_replace ("/ (| )/", "", $map);
@@ -411,7 +410,6 @@ class CustomHeaderPhotoLinker
         var lastFocusField;
         // 対象画像領域指定
         var lastFocusImgField;
-        var lastFocusFieldOfPoint = "";
         //　最後にアクセスした対象パネル画像の幅と高さ
         var lastWidth = -1;
         var lastHeight = -1;
@@ -486,6 +484,12 @@ class CustomHeaderPhotoLinker
             pre_horizonal = parseFloat(ver_hor[1].trim());
 
         }
+
+        // 場所を入力するイベント
+        function locationFocus(){
+
+            return
+        }   
 
         // 現在のCanvasの大きさに対して拡大・縮小が必要ならば拡大・縮小時に縦横に対して正方形の形でアイコン画像の拡大・縮小をする
         function photoMag(id){
@@ -638,6 +642,13 @@ class CustomHeaderPhotoLinker
                 location.href = lnk_elems[i].value;// canvas内の図形のリンクに飛ばす
             }
         }
+
+        function mouseDownListnerForm(e) {
+            console.log("mouseDownListnerForm(e)");
+            console.log(e.id);
+
+        }
+
     
         // pointXとpointYにクリックした要素内の座標を格納
         function getCanvasPointXY(e){
@@ -645,7 +656,7 @@ class CustomHeaderPhotoLinker
             var rect = e.target.getBoundingClientRect();
             pointX = (e.clientX - rect.left);
             pointY = (e.clientY - rect.top);
-            //alert((pointX) + ',' + (pointY));
+            alert((pointX) + ',' + (pointY));
         }
         // 座標を最後にアクセスしたテキストフィールドに反映させる。(カスタマイザー)
         function setXYPointToText(e){
@@ -668,7 +679,6 @@ class CustomHeaderPhotoLinker
 
                 loadShapePositions(arrIndex, pointX, pointY);
             }
-            //alert(typeof lastFocusField);
         }
         // 図形を指定個所に書く
         function loadShapePositions(index, posX, posY){
@@ -857,8 +867,22 @@ class CustomHeaderPhotoLinker
                 console.log(targetImage.width);
                 console.log(new_canvas.height);
                 console.log(targetImage.height);
+                new_canvas.addEventListener('load', function(){
+                    console.log("new_canvas_loaded");
+                    resizePhoto(targetImage);
+                    loadCanvas();
+                }, false);
+            
+                new_canvas.addEventListener('click', function(e){
+                    //resizePhoto();
+                    console.log("new_canvas_clicked");
+                    if(custom_mode){
+                        getCanvasPointXY(e);
+                        setXYPointToText(e);
+                    }
+                }, false);
 
-                putImageToCanvas(targetElem,new_canvas.width, new_canvas.height);
+                //putImageToCanvas(targetElem,new_canvas.width, new_canvas.height);
             }
             //}
 
@@ -867,7 +891,7 @@ class CustomHeaderPhotoLinker
     
         // マウスオーバー処理
         document.addEventListener("mouseover", function(e) {
-            console.log(e.target); //event.targetの部分がマウスオーバーされている要素になっています
+            console.log("e.target mouseover"); //event.targetの部分がマウスオーバーされている要素になっています
             
             icon_points = imageRefCheck();
             if(new_canvas == e.target)
@@ -905,21 +929,9 @@ class CustomHeaderPhotoLinker
                 }
             }
         });    
-    
-        new_canvas.addEventListener('load', function(){
-            resizePhoto(targetImage);
-            loadCanvas();
-        }, false);
-    
-        new_canvas.addEventListener('click', function(e){
-            //resizePhoto();
-            if(custom_mode){
-                getCanvasPointXY(e);
-                setXYPointToText(e);
-            }
-        }, false);
-    
+
         window.addEventListener('resize', function(){
+            console.log(イベントresize);
             resizePhoto(targetImage);
             //loadPointPositions();
     
@@ -940,6 +952,7 @@ class CustomHeaderPhotoLinker
     
     
         document.addEventListener("DOMContentLoaded", function(){
+            console.log("DOMContentLoaded");
             // 画像要素キャンパスの追加　一番最初に必要
             new_canvas = initCanvasField();
     
@@ -973,28 +986,8 @@ class CustomHeaderPhotoLinker
                 //testContext.beginPath();
                 if(custom_mode)
                 {
-                    var prev_page = window.parent.document.getElementById('customize-preview');// 上部に要素追加に必要
-                    var added_elem = document.createElement('div');
-                    added_elem.id = 'option_menu';
-                    added_elem.innerHTML = '<button id="addPoint">AddPoint</button>';
-                    added_elem.style = "width:100%; height:50px; display:block; position:absolute;"
-                    prev_page.insertBefore(added_elem,null);
-                
-    
-                    titleBtn = window.parent.document.getElementById('addPoint');
-                    titleBtn.addEventListener('click', function(){
-                        setAddPoint = true;
-                        alert("AddClick!");
-                        for(var i = 0; i < arrTField.length; i++){
-                            arrTField[i] = window.parent.document.getElementById('_customize-input-my_loc' + (i+1)); // iframeしているときは外側に走査走らないためwindow指定
-                            //if(!arrTField[i]){ return false;}
-                            //alert(arrTField[i].nodeName);
-                            arrTField[i].addEventListener('focus', function(e) {
-                                lastFocusFieldOfPoint = e.currentTarget;
-                            }, false);
-                        }
 
-                    }, false);
+                    
                 }
         
                 //指定する(画像領域)
@@ -1014,17 +1007,21 @@ class CustomHeaderPhotoLinker
                 loadCanvas();
                 if(!custom_mode)
                 new_canvas.addEventListener("mousedown", mouseDownListner, false);// canvas内のリンクに飛ばす
+                else
+                new_canvas.addEventListener("mousedown", mouseDownListnerForm, false);// canvas内のリンクに飛ばす
             }
         }, false);
-    
+
+        window.addEventListener('beforeunload', function(e) {
+            e.returnValue = '保存忘れはありませんか？';
+          }, false);
+
         //https://note.com/fuminon3745/n/n33184d12ce30
         // 指定した要素に対して場所をフィールドに記載し、色付けてわかるようにする。
         document.body.onclick = (e) => {
-
+            console.log("document.body.onclick");
             if(imgFieldOnOff){
 
-                //var pageX = e.pageX;
-                //var pageY = e.pageY;
                 var removedClass = document.getElementsByClassName("active_pre_process");
                 for(var i = 0; removedClass.length; i++){
                     if(removedClass[i].getAttribute('alt')){
@@ -1042,7 +1039,7 @@ class CustomHeaderPhotoLinker
                 var rect = e.target.getBoundingClientRect();
                 var elementUnderMouse = document.elementFromPoint(rect.left, rect.top);
                 
-                if(setAddPoint){ lastFocusFieldOfPoint.value= "" + rect.left + ", " + rect.top;
+                if(setAddPoint){ lastFocusField.value= "" + rect.left + ", " + rect.top;
                 }
                 setAddPoint = false;
 
