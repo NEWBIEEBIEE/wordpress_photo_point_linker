@@ -413,6 +413,10 @@ class CustomHeaderPhotoLinker
         //　最後にアクセスした対象パネル画像の幅と高さ
         var lastWidth = -1;
         var lastHeight = -1;
+
+        var locSwitch = false;
+        var locTargetValue;
+
         var width;
         var height;
         var lnk_elems;
@@ -644,9 +648,23 @@ class CustomHeaderPhotoLinker
         }
 
         function mouseDownListnerForm(e) {
-            console.log("mouseDownListnerForm(e)");
-            console.log(e.id);
 
+            var img = new Image();
+            img.src = 'https://placehold.jp/150x150.png';
+            testContext = new_canvas.getContext("2d");
+
+            console.log("mouseDownListnerForm(e)");
+            console.log(e.target.id);
+            if(e.target.id.includes("my_loc")){
+                console.log("ここに処理が入ります");
+                locSwitch = true;
+                locTargetValue = e.target;
+                if(new_canvas !== null && testContext !== null && testContext !== undefined){
+                    alert((pointX) + ',' + (pointY));
+                    testContext.drawImage(img, pointX, pointY);
+                    console.log("この処理がしたい");
+                }
+            }
         }
 
     
@@ -656,7 +674,10 @@ class CustomHeaderPhotoLinker
             var rect = e.target.getBoundingClientRect();
             pointX = (e.clientX - rect.left);
             pointY = (e.clientY - rect.top);
-            alert((pointX) + ',' + (pointY));
+            if(locSwitch){
+                locTargetValue.value = (pointX) + ',' + (pointY);
+            }
+            locSwitch = false;
         }
         // 座標を最後にアクセスしたテキストフィールドに反映させる。(カスタマイザー)
         function setXYPointToText(e){
@@ -881,7 +902,9 @@ class CustomHeaderPhotoLinker
                         setXYPointToText(e);
                     }
                 }, false);
-
+                if(!custom_mode)
+                new_canvas.addEventListener("mousedown", mouseDownListner, false);// canvas内のリンクに飛ばす
+                window.parent.addEventListener("mousedown", mouseDownListnerForm, false);// canvas内のリンクに飛ばす
                 //putImageToCanvas(targetElem,new_canvas.width, new_canvas.height);
             }
             //}
@@ -1005,10 +1028,11 @@ class CustomHeaderPhotoLinker
                 resizePhoto();
                 loadPointPositions();
                 loadCanvas();
+                /*
                 if(!custom_mode)
                 new_canvas.addEventListener("mousedown", mouseDownListner, false);// canvas内のリンクに飛ばす
-                else
-                new_canvas.addEventListener("mousedown", mouseDownListnerForm, false);// canvas内のリンクに飛ばす
+                else*/
+                window.parent.addEventListener("mousedown", mouseDownListnerForm, false);// canvas内のリンクに飛ばす
             }
         }, false);
 
