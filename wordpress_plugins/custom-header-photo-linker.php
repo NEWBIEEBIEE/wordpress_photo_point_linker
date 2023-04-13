@@ -134,6 +134,23 @@ class CustomHeaderPhotoLinker
             'panel'    => 'my_panel_setting'    
         ));
 
+        // 選択Url
+        //　対象のUrl
+        $wp_customize->add_setting( 'my_setting_url');
+    
+        $wp_customize->add_control(
+            new WP_Customize_Control(
+                $wp_customize,
+                'my_control',
+                array(
+                    'label' => '対象画像のあるURLの指定',
+                    'section' => 'my_section',
+                    'settings' => 'my_setting_url',
+                    'priority' => 1,
+                )
+            )
+        );
+        
         // 選択画像
         //　対象のCANVAS画像
         $wp_customize->add_setting( 'my_setting');
@@ -270,6 +287,7 @@ class CustomHeaderPhotoLinker
     }
 
     function hiddenInformations() {
+        $rootUrl = get_option("my_setting_url");
         $map = get_option("my_setting");
         $map = preg_replace ("/ (| )/", "", $map);
         $location1 = get_option("my_loc1");
@@ -283,6 +301,7 @@ class CustomHeaderPhotoLinker
         echo '<span class="photo_locations_information">';
 
             echo <<<EOF
+            <input type='hidden' id='rootUrl' value="{$rootUrl}">
             <input type='hidden' id='maps' value="{$map}">
             <input type="hidden" id="point_loc1" class="location_point" value="{$location1}">
             <input type="hidden" id="photo_path1" class="photo_path" value="{$photo_path1}">
@@ -378,15 +397,14 @@ class CustomHeaderPhotoLinker
         var new_canvas = document.createElement('canvas');
         var cvsStyle;
     
+        var imageOrNot = true;
         var pointX = -1;
         var pointY = -1;
-        var indexNum = 2;
-        var arrTField = new Array(indexNum);
-        var arrShapes = new Array(indexNum);
-        //var canvasNum = 5;
-        //var arrCanvas = new Array(canvasNum);// 画像までのパスを示す文字列　非対応
-        var oneCanvas = "";
-        var installed;
+        var indexNum = 2;// 
+        var arrTField = new Array(indexNum);// リンク先
+        var arrShapes = new Array(indexNum);// 描写される図形の場所（座標）
+        var oneCanvas = "";// キャンバス
+        var installed;// キャンバスの描写を行うコンテキスト
         var arrPathCanvas = [];// パスを保存する2次配列
         var setAddPoint = false;
 
@@ -415,6 +433,7 @@ class CustomHeaderPhotoLinker
         var lastHeight = -1;
 
         var locSwitch = false;
+        var locPointSwitch = false;
         var locTargetValue;
 
         var width;
@@ -492,7 +511,7 @@ class CustomHeaderPhotoLinker
         // 場所を入力するイベント
         function locationFocus(){
 
-            return
+            return;
         }   
 
         // 現在のCanvasの大きさに対して拡大・縮小が必要ならば拡大・縮小時に縦横に対して正方形の形でアイコン画像の拡大・縮小をする
@@ -580,8 +599,8 @@ class CustomHeaderPhotoLinker
                     {
                         // カスタマイザーの対象の文字フィールドに座標入力
                         lastFocusField.value = pointX / parseFloat(cvsStyle.width.replace("px","")) + ',' + pointY / parseFloat(cvsStyle.height.replace("px",""));
-                        var arrIndex = (parseFloat(lastFocusField.id.replace('_customize-input-my_loc', ''), 10) - 1);
-                        arrShapes[arrIndex] = lastFocusField.value;
+                        var arrIndex = (parseFloat(lastFocusField.id.replace('_customize-input-my_loc', ''), 10));
+                        arrShapes[arrIndex - 1] = lastFocusField.value;
                         console.log(lastFocusField.value);
                         console.log("arrShapes:" + arrShapes);
                     }
@@ -613,12 +632,12 @@ class CustomHeaderPhotoLinker
                 if(arrShapes[i] && arrShapes[i].includes(',')){
                     // 座標に図形を書き込む　画像に書き込みたい
 
-                    loadShapePositions(arrIndex, pointX, pointY);
+                    loadShapePositions(i + 1, pointX, pointY);
                     console.log("***");
                 }
             }
         }
-        //　ユーザー側で必要な処理　クリック時にリンク先に飛ばす
+        //　ユーザー側で必要な処理　クリック時にリンク先に飛ばす（カスタマイザーじゃないとき）
         function mouseDownListner(e) {
             console.log("mouseDownListner(e)");
             /*
@@ -660,8 +679,7 @@ class CustomHeaderPhotoLinker
                 locSwitch = true;
                 locTargetValue = e.target;
                 if(new_canvas !== null && testContext !== null && testContext !== undefined){
-                    alert((pointX) + ',' + (pointY));
-                    testContext.drawImage(img, pointX, pointY);
+                    locPointSwitch = true;
                     console.log("この処理がしたい");
                 }
             }
@@ -676,6 +694,12 @@ class CustomHeaderPhotoLinker
             pointY = (e.clientY - rect.top);
             if(locSwitch){
                 locTargetValue.value = (pointX) + ',' + (pointY);
+                var index = parseFloat(locTargetValue.id.substr(-1, 1));
+                loadShapePositions(index, pointX, pointY);
+                //let e_ch = new Event('change');
+                let e_ch2 = new Event('input');
+                //locTargetValue.dispatchEvent(e_ch);//カスタマイザーの公開ボタン
+                locTargetValue.dispatchEvent(e_ch2);//カスタマイザーの公開ボタン
             }
             locSwitch = false;
         }
@@ -684,15 +708,15 @@ class CustomHeaderPhotoLinker
             console.log("setXYPointToText(e)");
             if(lastFocusField) // 初期値なし
             if((lastFocusField.id.includes('_customize-input-my_loc'))){
-                let e_ch = new Event('change');
-                let e_ch2 = new Event('input');
+                //let e_ch = new Event('change');
+                //let e_ch2 = new Event('input');
             
                 lastWidth = parseFloat(cvsStyle.width.replace("px",""));
                 lastHeight = parseFloat(cvsStyle.height.replace("px",""));
                 lastFocusField.value = pointX / parseFloat(cvsStyle.width.replace("px","")) + ',' + pointY / parseFloat(cvsStyle.height.replace("px",""));
                 //alert((cvsStyle.width) + ',' + (cvsStyle.height));
-                lastFocusField.dispatchEvent(e_ch);//カスタマイザーの公開ボタン
-                lastFocusField.dispatchEvent(e_ch2);//カスタマイザーの公開ボタン
+                //lastFocusField.dispatchEvent(e_ch);//カスタマイザーの公開ボタン
+                //lastFocusField.dispatchEvent(e_ch2);//カスタマイザーの公開ボタン
                 var arrIndex = (parseFloat(lastFocusField.id.replace('_customize-input-my_loc', ''), 10));
                 arrShapes[arrIndex-1] = lastFocusField.value;// 
 
@@ -706,7 +730,7 @@ class CustomHeaderPhotoLinker
             console.log("loadShapePositions");
 
             var icon_inst = new Image();
-            var imgUrl = document.getElementById("photo_path" + (index+1)).value;
+            var imgUrl = document.getElementById("photo_path" + (index)).value;
             icon_inst.src = imgUrl;
             if(testContext){
                  testContext.drawImage(icon_inst, (posX + parseFloat(cvsStyle.width.replace("px",""))), (posY + parseFloat(cvsStyle.height.replace("px",""))));
@@ -726,12 +750,12 @@ class CustomHeaderPhotoLinker
                 arrShapes[i] = loc_points[i].value;//クラスの集合から取得
                 arrTField[i] = lnk_elems[i].value;//クラスの集合から取得　ここ以外(描画以外)で使う
                 if(arrShapes[i] && arrShapes[i].includes(',')){
-                    loadShapePositions(arrIndex, pointX, pointY);
+                    loadShapePositions(i+1, pointX, pointY);
                 }
             }
         }
     
-        // 子要素の走査
+        // 子要素の走査 対象要素のセット
         function scanChildElems(elem, tagName, path, minMax, layerNum){
             console.log("scanChildElems");
             var addedPath = path;
@@ -818,54 +842,59 @@ class CustomHeaderPhotoLinker
     
             //for(var i = 0; i < arrCanvas.length; i++){
             var u = 0;
-            
+            if(window.parent.document.getElementById("_customize-input-my_control"))
             oneCanvas = window.parent.document.getElementById("_customize-input-my_control");// 修正必要
             // 上記に対してCANVASタグを追加する
             //まず対象を取得する
-            console.log("CANVAS VALUE:"+oneCanvas.value);
+            if(oneCanvas !== null || oneCanvas !== undefined){
+                console.log("CANVAS VALUE:"+oneCanvas.value);
 
-            var arrPathCanvas = [];
-            arrPathCanvas = oneCanvas.value.split("=>");// 一つ一つの親子要素について配列順に入れなおす
-            var targetROOT = arrPathCanvas[0];// 一番最初の親要素
-            var candyElements;
-            if(arrPathCanvas === [])
-            for(var q = 0; q < arrPathCanvas.length; q++){
-                var idMatch = regexpID.test(targetROOT);
-                var clsMatch = regexpCLS.test(targetROOT);
-                var tagMatch = regexpTAG.test(targetROOT);
-                if(idMatch)
-                {
-                    let idWord = regexpID.exec(targetROOT);
-                    targetElem = document.getElementById(idWord[1]);// 正規表現の二つ目の要素が()に入っている値を取得
-                }else if(clsMatch){
-                    let classWord = regexpCLS.exec(targetROOT);
-                    candyElements = document.getElementsByClassName(classWord[1]);
-                    if(idWord[2] != "")
+                if(oneCanvas.value && oneCanvas.value.includes("=>"))
+                arrPathCanvas = oneCanvas.value.split("=>");// 一つ一つの親子要素について配列順に入れなおす
+                var targetROOT = arrPathCanvas[0];// 一番最初の親要素
+                var candyElements;
+                if(arrPathCanvas === [])
+                for(var q = 0; q < arrPathCanvas.length; q++){
+                    var idMatch = regexpID.test(targetROOT);
+                    var clsMatch = regexpCLS.test(targetROOT);
+                    var tagMatch = regexpTAG.test(targetROOT);
+                    if(idMatch)
                     {
-                        targetElem = candyElements[parseInt(idWord[2])];//　IDからとれる場合は、さかのぼってクラスの配列から取得
-                    }else{
-                        targetElem = candyElements;
+                        let idWord = regexpID.exec(targetROOT);
+                        targetElem = document.getElementById(idWord[1]);// 正規表現の二つ目の要素が()に入っている値を取得
+                    }else if(clsMatch){
+                        let classWord = regexpCLS.exec(targetROOT);
+                        candyElements = document.getElementsByClassName(classWord[1]);
+                        if(idWord[2] != "")
+                        {
+                            targetElem = candyElements[parseInt(idWord[2])];//　IDからとれる場合は、さかのぼってクラスの配列から取得
+                        }else{
+                            targetElem = candyElements;
+                        }
+                    }else if(tagMatch){
+                        var arrTagName = [];
+                        var remaingIndex = 0;
+                        for(var v = q; v < arrPathCanvas.length; v++)
+                        { // タグの配列に直す
+                            // 正規表現でタグ名取得する
+                            arrTagName[remaingIndex] = arrPathCanvas[v];
+                            remaingIndex++;
+                        }
+                        targetElem = targetTAGChildParser(targetElem, arrTagName, "IMG");
+                        break;
+                    }else if(targetElem.style.backgroundImage !== null){
+                        imageOrNot = false;
+                        break;
                     }
-                }else if(tagMatch){
-                    var arrTagName = [];
-                    var remaingIndex = 0;
-                    for(var v = q; v < arrPathCanvas.length; v++)
-                    { // タグの配列に直す
-                        // 正規表現でタグ名取得する
-                        arrTagName[remaingIndex] = arrPathCanvas[v];
-                        remaingIndex++;
-                    }
-                    targetElem = targetTAGChildParser(targetElem, arrTagName, "IMG");
-                    break;
-                }
-                targetROOT = arrPathCanvas[q+1];// 次の子の要素をセット　この時にtargetElemには目的の子要素までの実際の要素が入っている
-            }else{
-                targetElem = document.getElementsByClassName("active_pre_process")[0];
-            }
+                    targetROOT = arrPathCanvas[q+1];// 次の子の要素をセット　この時にtargetElemには目的の子要素までの実際の要素が入っている
 
+                }else{
+                    targetElem = document.getElementsByClassName("active_pre_process")[0];
+                }
+            }
             // 上記で取得したIMGタグについてCANVASタグを設定
 
-                new_canvas = document.createElement('canvas');
+            new_canvas = document.createElement('canvas');
 
             if(targetElem){
                 console.log("CANVAS設定");
@@ -897,9 +926,10 @@ class CustomHeaderPhotoLinker
                 new_canvas.addEventListener('click', function(e){
                     //resizePhoto();
                     console.log("new_canvas_clicked");
-                    if(custom_mode){
+                    if(custom_mode && locPointSwitch){
                         getCanvasPointXY(e);
                         setXYPointToText(e);
+                        locPointSwitch = false;
                     }
                 }, false);
                 if(!custom_mode)
@@ -907,7 +937,7 @@ class CustomHeaderPhotoLinker
                 window.parent.addEventListener("mousedown", mouseDownListnerForm, false);// canvas内のリンクに飛ばす
                 //putImageToCanvas(targetElem,new_canvas.width, new_canvas.height);
             }
-            //}
+            
 
             return new_canvas;
         }
@@ -916,7 +946,7 @@ class CustomHeaderPhotoLinker
         document.addEventListener("mouseover", function(e) {
             console.log("e.target mouseover"); //event.targetの部分がマウスオーバーされている要素になっています
             
-            icon_points = imageRefCheck();
+            icon_point = imageRefCheck();
             if(new_canvas == e.target)
             {
                 // 該当座標でマウスポインターの変換
@@ -954,7 +984,7 @@ class CustomHeaderPhotoLinker
         });    
 
         window.addEventListener('resize', function(){
-            console.log(イベントresize);
+            console.log("イベントresize");
             resizePhoto(targetImage);
             //loadPointPositions();
     
@@ -984,55 +1014,50 @@ class CustomHeaderPhotoLinker
 
             if(url.includes('customize'))
             {
-                const element = document.getElementById('option_menu');
-                if(element != null) 
-                element.remove();
-                custom_mode = true;
-        
-            }
-
-            oneCanvas = window.parent.document.getElementById("_customize-input-my_control").value;// 修正必要
-            // 上記に対してCANVASタグを追加する
-            //まず対象を取得する
-            var arrExps = new Array();
-            if(oneCanvas.lastIndexOf('=>') > 0)
-            {
-                if(arrExps=regexpSEC.exec(oneCanvas)!=null){
-                    var startIndex = arrExps.index; // インデックスを保存
-                    arrPathCanvas = split("=>", arrExps.index + 1)
-                }
-            }else{ //パスを表すテキストがなかった時
-
-            }
-            if(new_canvas !== undefined){
-                testContext = new_canvas.getContext("2d");
-                //testContext.beginPath();
-                if(custom_mode)
+                    const element = document.getElementById('option_menu');
+                    if(element != null) 
+                    element.remove();
+                    custom_mode = true;
+            
+                
+                if(window.parent.document.getElementById("_customize-input-my_control"))
+                oneCanvas = window.parent.document.getElementById("_customize-input-my_control").value;// 修正必要
+                // 上記に対してCANVASタグを追加する
+                //まず対象を取得する
+                var arrExps = new Array();
+                if(oneCanvas.lastIndexOf('=>') > 0)
                 {
+                    if(arrExps=regexpSEC.exec(oneCanvas)!=null){
+                        var startIndex = arrExps.index; // インデックスを保存
+                        arrPathCanvas = split("=>", arrExps.index + 1)
+                    }
+                }else{ //パスを表すテキストがなかった時
 
+                }
+                if(new_canvas !== undefined){
+                    testContext = new_canvas.getContext("2d");
+                    //testContext.beginPath();
+                    if(custom_mode)
+                    {
+                        //指定する(画像領域)
+                        // カスタマイザー要素に該当の座標を記述する(Canvasをクリックした際に最後にフォーカスを当てたテキストボックスに記述されるためのモノ)
+                        oneCanvas = window.parent.document.getElementById('_customize-input-my_control'); // iframeしているときは外側に走査走らないためwindow指定
+                        oneCanvas.addEventListener('focus', function(e) {
+                            lastFocusImgField = e.currentTarget;
+                            console.log(lastFocusImgField.id);
+                            imgFieldOnOff = true;
+                        }, false);
+
+                        // 残処理
+                        cvsStyle = window.getComputedStyle(new_canvas);
+                
+                        resizePhoto();
+                        loadPointPositions();
+                        loadCanvas();
+                    }
                     
                 }
-        
-                //指定する(画像領域)
-                // カスタマイザー要素に該当の座標を記述する(Canvasをクリックした際に最後にフォーカスを当てたテキストボックスに記述されるためのモノ)
-                oneCanvas = window.parent.document.getElementById('_customize-input-my_control'); // iframeしているときは外側に走査走らないためwindow指定
-                oneCanvas.addEventListener('focus', function(e) {
-                    lastFocusImgField = e.currentTarget;
-                    console.log(lastFocusImgField.id);
-                    imgFieldOnOff = true;
-                }, false);
-
-                // 残処理
-                cvsStyle = window.getComputedStyle(new_canvas);
-        
-                resizePhoto();
-                loadPointPositions();
-                loadCanvas();
-                /*
-                if(!custom_mode)
-                new_canvas.addEventListener("mousedown", mouseDownListner, false);// canvas内のリンクに飛ばす
-                else*/
-                window.parent.addEventListener("mousedown", mouseDownListnerForm, false);// canvas内のリンクに飛ばす
+                window.parent.addEventListener("mousedown", mouseDownListnerForm, false);// canvas内のリンクに飛ば
             }
         }, false);
 
@@ -1046,6 +1071,7 @@ class CustomHeaderPhotoLinker
             console.log("document.body.onclick");
             if(imgFieldOnOff){
 
+                // 他のアイテム(Canvas設定を削除)
                 var removedClass = document.getElementsByClassName("active_pre_process");
                 for(var i = 0; removedClass.length; i++){
                     if(removedClass[i].getAttribute('alt')){
@@ -1179,6 +1205,19 @@ resizePhoto>putImageToCanvas
 
 
 ------------------------------------------------以下、小説メモ----------------------------------------------------
+
+なぜ、自分の人生は軽かったかというと、他人の背中を見たときにそれは明白だった。彼らは選択の自由があり、その選択に自分の体重を預けることができる。
+それが自分の責任だからだ。私の親は私から自分の人生の責任を取り上げた。
+私は他人から次第に遊びに誘われなくなった。傍から他人が遊んで楽しそうにしているのを眺めることしかできなかった。
+遊び道具さえあればと思う。ただそれを親は自分の人生の責任の方が重いといって取り上げた。
+自分には他人の人生で我慢しなければならない一部分というのが、自分にとってはすべてだったんだ。
+行った先で、今これだけどうしようもなくても、誰かがきっと助けてくれる。そんな風に思い続けていた。
+でもそれは、親でもなければ神様でもなかった。自分でも他人でもなかった。
+クラスで係を決めたときにお笑い係になったこともある。自分は他人から加害を加えられることでしかコミュニケーションを取ることができなかった。
+いじられているときはまだ。それはマシだった。だからそれでもそれが嫌だった。いじられる奴、俺はそういう風に思われたくなかったんだ。
+だから、できるだけ残酷であろうとした。
+
+
 
 自分の人生を一言で表すなら、現実に起こる不整合の連続だった。誰かが悪いということではなく、自分が意図したわけでもなく、病的であったにせよ（病的であったならなおのこと）
 そうなってしまった。
