@@ -134,23 +134,7 @@ class CustomHeaderPhotoLinker
             'panel'    => 'my_panel_setting'    
         ));
 
-        // 選択Url
-        //　対象のUrl
-        $wp_customize->add_setting( 'my_setting_url');
-    
-        $wp_customize->add_control(
-            new WP_Customize_Control(
-                $wp_customize,
-                'my_control',
-                array(
-                    'label' => '対象画像のあるURLの指定',
-                    'section' => 'my_section',
-                    'settings' => 'my_setting_url',
-                    'priority' => 1,
-                )
-            )
-        );
-        
+
         // 選択画像
         //　対象のCANVAS画像
         $wp_customize->add_setting( 'my_setting');
@@ -167,21 +151,7 @@ class CustomHeaderPhotoLinker
                 )
             )
         );
-        // 画像の現在の大きさ
-        $wp_customize->add_setting( 'my_map_size');
-    
-        $wp_customize->add_control(
-            new WP_Customize_Control(
-                $wp_customize,
-                'my_control',
-                array(
-                    'label' => '画像の指定',
-                    'section' => 'my_section',
-                    'settings' => 'my_map_size',
-                    'priority' => 1,
-                )
-            )
-        );
+
 
         // 1
         $wp_customize->add_setting( 'my_image1');
