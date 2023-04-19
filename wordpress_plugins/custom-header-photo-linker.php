@@ -152,6 +152,20 @@ class CustomHeaderPhotoLinker
             )
         );
 
+        
+        $wp_customize->add_setting( 'my_image_url_loc', array(
+            'type'      => 'option',
+            'sanitize_callback' => 'wp_filter_nohtml_kses'
+         ));
+    
+        $wp_customize->add_control( 'my_image_url_loc', array(
+            'label'       => 'my_image_url_loc', 
+            'type'        => 'text',
+            'section'     => 'my_section', 
+            'settings'    => 'my_image_url_loc', 
+            'description' => '画像のあるURLが含む固有の値を入れてください。', 
+        ));
+
 
         // 1
         $wp_customize->add_setting( 'my_image1');
@@ -361,7 +375,7 @@ class CustomHeaderPhotoLinker
         var custom_mode = false;
     
 
-        var blockElems = ['ADDRESS', 'BLOCKQUOTE', 'CENTER', 'DIR', 'DIV', 'DL', 'FIELDSET', 'FORM', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'HR', 'ISINDEX', 'MENU', 'NOFRAMES', 'NOSCRIPT', 'OL', 'P', 'PRE', 'TABLE', 'UL', 'LI', 'OL', 'ARTICLE', 'FIGURE'];
+        var blockElems = ['SECTION','ADDRESS', 'BLOCKQUOTE', 'CENTER', 'DIR', 'DIV', 'DL', 'FIELDSET', 'FORM', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'HR', 'ISINDEX', 'MENU', 'NOFRAMES', 'NOSCRIPT', 'OL', 'P', 'PRE', 'TABLE', 'UL', 'LI', 'OL', 'ARTICLE', 'FIGURE'];
     
         var targetImage = ""
         var new_canvas = document.createElement('canvas');
@@ -640,6 +654,7 @@ class CustomHeaderPhotoLinker
 
             var img = new Image();
             img.src = 'https://placehold.jp/150x150.png';
+            if(new_canvas)
             testContext = new_canvas.getContext("2d");
 
             console.log("mouseDownListnerForm(e)");
@@ -702,9 +717,12 @@ class CustomHeaderPhotoLinker
             var icon_inst = new Image();
             var imgUrl = document.getElementById("photo_path" + (index)).value;
             icon_inst.src = imgUrl;
+            console.log(imgUrl);
             if(testContext){
-                 testContext.drawImage(icon_inst, (posX + parseFloat(cvsStyle.width.replace("px",""))), (posY + parseFloat(cvsStyle.height.replace("px",""))));
-            }
+                 /*testContext.drawImage(icon_inst, (posX + parseFloat(cvsStyle.width.replace("px",""))), (posY + parseFloat(cvsStyle.height.replace("px",""))));*/
+                 testContext.drawImage(icon_inst, posX, posY);
+                 document.getElementById("point_loc" + (index)).value = posX + "," + posY;
+                }
         }
         // デフォルト値 初期設定　hidden要素取得
         function loadPointPositions(){
@@ -740,6 +758,10 @@ class CustomHeaderPhotoLinker
             // id名追加
             if(elem.id){
                 addedTagAttr += "{\$id:" + elem.id + "}";
+                if(addedPath !== ""){
+                    addedTagAttr = addedTagAttr + "=>" + addedPath;
+                }
+                return addedTagAttr;
             }
             // class名追加
             if(elem.className){
@@ -751,29 +773,40 @@ class CustomHeaderPhotoLinker
                 }
                 //let idx = doc.indexOf(elem);
                 addedTagAttr += "{\$cls:" + elem.className + "[" + idx + "]" + "}";
+
+                if(addedPath !== ""){
+                    addedTagAttr = addedTagAttr + "=>" + addedPath;
+                }
+                
+                return addedTagAttr;
             }
             if(addedPath.length > 0)
-            addedPath += "=>";
-            addedPath += addedTagAttr;
+            /*addedPath += "=>";
+            addedPath += addedTagAttr;*/
+            addedTagAttr = addedTagAttr + "=>" + addedPath;
+            addedPath = addedTagAttr;
     
             if(minMax.toLowerCase() == "min" && addedPath.indexOf(tagName) >= 0){
                 // 指定したタグが入っている場合
                 //return addedPath;
-            }else{
+            }else{/*
                 if(elem.firstElementChild){
                     addedPath = scanChildElems(elem.firstElementChild, tagName, addedPath, minMax,layerNum++);
-                }
+                }*/
                 // 指定したタグが入って居なく深堀が必要
-                if(addedPath.indexOf(tagName) < 0){
+                /*if(addedPath.indexOf(tagName) < 0){
                     if(layerNum > 0){
                         if(elem.nextElementSibling){
                             addedPath = scanChildElems(elem.nextElementSibling, tagName, Path, minMax, layerNum);
                         }
-                    }
-                    //alert("2:" + elem.nextElementSibling.nodeName);
-                }else{
-    
+                    }*/
+                if(elem.parent){
+                    if(addedPath.indexOf(tagName) < 0) addedPath = scanChildElems(elem.parent, tagName, addedPath, minMax,layerNum++);
+                    else return addedPath;
                 }
+                
+                    //alert("2:" + elem.nextElementSibling.nodeName);
+                
             }
             return addedPath;//関数のネスティング(再起処理)で全部の文字列が返る
         }
@@ -782,94 +815,252 @@ class CustomHeaderPhotoLinker
         function targetTAGChildParser(targetElem, remainTagArr, terminal){
             console.log("targetTAGChildParser");
             var elemBox = targetElem;
-            if(elemBox.tagName == terminal){
+            if(elemBox !== null && elemBox.tagName == terminal){
     
                 return elemBox;
-            }else if(elemBox.tagName == remaintagArr[0]){
+            }else if(elemBox !== null && elemBox.tagName == remainTagArr[0]){
                 if(remainTagArr.length > 0){
                     elemBox = targetTAGChildParser(targetElem.firstElementChild, remainTagArr.slice(1), terminal);
                 }else{
-                    return null;
+                    return elemBox;
                 }
             }else{
-                if(elemBox.nextElementSibling){
-                    elemBox = targetTAGChildParser(telemBox.nextElementSibling, remainTagArr, terminal);
+                if(elemBox !== null && elemBox.nextElementSibling){
+                    elemBox = targetTAGChildParser(elemBox.nextElementSibling, remainTagArr, terminal);
                 }else{
-                    return null;
+                    return elemBox;
                 }
             }
             return elemBox;
         }
-    
+
+        function targetTAGParentParser(targetElem, arrTagName){
+            return;
+        }
+
+
+        function initCanvasField(){
+
+            console.log("initCanvasField");
+            const regexpID = /\{\$id:(.+)\}/;
+            const regexpCLS = /\{\$cls:(.+)\[?(\d*)\]?\}\{/;
+            const regexpTAG = /\{\$tag:([A-Z]+)\[?(\d*)\]?\}/;
+            var u = 0;
+            var oneCanvas = {};
+            if(window.parent.document.getElementById("_customize-input-my_control"))
+            oneCanvas.value = window.parent.document.getElementById("_customize-input-my_control").value;// 修正必要
+            console.log("initCanvasField Onecanvas" + oneCanvas);
+            // 上記に対してCANVASタグを追加する
+            //まず対象を取得する
+            //if(oneCanvas !== null || oneCanvas !== undefined || oneCanvas !== ""){
+                if(oneCanvas.value !== null && oneCanvas.value !== "" && oneCanvas.value.includes("=>")){
+                    arrPathCanvas = oneCanvas.value.split("=>");// 一つ一つの親子要素について配列順に入れなおす
+                    var candyElements;
+                    if(arrPathCanvas !== []){
+                        for(var q = 0; q < arrPathCanvas.length; q++){
+                            var idMatch = regexpID.exec(arrPathCanvas[q]);
+                            console.log("arrPathCanvas: " + arrPathCanvas);
+                            var matchStr = arrPathCanvas[q];
+                            console.log(typeof arrPathCanvas[q]);
+                            console.log("matchStr" + matchStr);
+                            var clsMatch = regexpCLS.exec(matchStr);
+                            console.log("clsMatch : " + clsMatch);
+                            var tagMatch = regexpTAG.exec(arrPathCanvas[q]);
+                            if(idMatch)
+                            {
+                                let idWord = regexpID.exec(arrPathCanvas[q]);
+                                targetElem = document.getElementById(idWord[1]);// 正規表現の二つ目の要素が()に入っている値を取得
+                            }
+                            if(clsMatch){
+                                console.log("classにはいったよ!");
+                                clsMatch = clsMatch[1].split(' ');
+
+                                for(var i = 0; i < clsMatch.length; i++){
+                                    console.log(" clsMatch "+clsMatch[i]);
+                                    if(clsMatch !== ""){
+                               
+                                    }
+                                }
+                            }
+                            //if(q !== arrPathCanvas.length){
+                                if(tagMatch){
+
+                                    var arrTagName = [];
+                                    var remaingIndex = 0;
+
+                                    //if(tagMatch.indexOf("IMG")){
+                                    //    break;
+                                    //}else{
+                                    /*for(var v = q; v < arrPathCanvas.length; v++)
+                                    { // タグの配列に直す
+                                        // 正規表現でタグ名取得する
+                                        arrTagName[remaingIndex] = arrPathCanvas[v];
+                                        remaingIndex++;
+                                    }*/
+                                    targetElem = targetTAGChildParser(targetElem, arrTagName, "IMG");
+                                    //targetElem = targetTAGParentParser(targetElem, arrTagName, "IMG");
+                                
+                                    //}
+
+                                targetROOT = arrPathCanvas[q+1];// 次の子の要素をセット　この時にtargetElemには目的の子要素までの実際の要素が入っている
+                                }   
+                            //}
+                        }
+                    }
+                }else{
+                    console.log("active_pre_process Match Error");
+
+                }
+            // 上記で取得したIMGタグについてCANVASタグを設定
+
+            new_canvas = document.createElement('canvas');
+            console.log("CANVAS設定前のtargetElem:" + targetElem);
+            if(targetElem){
+                console.log("CANVAS設定");
+                installed = targetElem.parentNode;
+                installed.appendChild(new_canvas);
+
+                targetElem.id = "targetImage";
+
+                targetImage = document.getElementById('targetImage');
+                new_canvas.id = "icon_map";
+                installed.style.position = "relative";
+                new_canvas.style.position = "absolute";
+                new_canvas.style.position = "block";
+                new_canvas.style.zIndex = "999";
+                new_canvas.style.top = "0px";
+                new_canvas.style.left = "0px";
+                new_canvas.width = installed.offsetWidth;
+                new_canvas.height = installed.offsetHeight;
+                console.log("ここからCANVASデフォルトのサイズ");
+                console.log(new_canvas.width);
+                console.log(targetImage.width);
+                console.log(new_canvas.height);
+                console.log(targetImage.height);
+                new_canvas.addEventListener('load', function(){
+                    console.log("new_canvas_loaded");
+                    resizePhoto(targetImage);
+                    loadCanvas();
+                }, false);
+            
+                new_canvas.addEventListener('click', function(e){
+                    //resizePhoto();
+                    console.log("new_canvas_clicked");
+                    if(custom_mode && locPointSwitch){
+                        getCanvasPointXY(e);
+                        setXYPointToText(e);
+                        locPointSwitch = false;
+                    }
+                }, false);
+                if(!custom_mode)
+                new_canvas.addEventListener("mousedown", mouseDownListner, false);// canvas内のリンクに飛ばす
+                window.parent.addEventListener("mousedown", mouseDownListnerForm, false);// canvas内のリンクに飛ばす
+                //putImageToCanvas(targetElem,new_canvas.width, new_canvas.height);
+            }
+            
+
+            return new_canvas;
+        }
+
         // 文字列に入っている該当の要素から要素取得
         // canvas要素を追加する
-        function initCanvasField(){
+        function initCanvasFieldOld(){
+
             console.log("initCanvasField");
-            const regexpID = /\{\$id:(.+)\}/g;
-            const regexpCLS = /\{\$cls:(.+)\[?(\d*)\]?\}/g;
-            const regexpTAG = /\{\$tag:(.+)\[?(\d*)\]?\}/g;
-            //const regexpSEC = /=>/g;
-    
-            //for(var i = 0; i < arrCanvas.length; i++){
+            const regexpID = /\{\$id:(.+)\}/;
+            const regexpCLS = /\{\$cls:(.+)\[?(\d*)\]?\}\{/;
+            const regexpTAG = /\{\$tag:([A-Z]+)\[?(\d*)\]?\}/;
             var u = 0;
             if(window.parent.document.getElementById("_customize-input-my_control"))
             oneCanvas = window.parent.document.getElementById("_customize-input-my_control");// 修正必要
+            console.log("initCanvasField Onecanvas" + oneCanvas);
             // 上記に対してCANVASタグを追加する
             //まず対象を取得する
-            if(oneCanvas !== null || oneCanvas !== undefined){
-                console.log("CANVAS VALUE:"+oneCanvas.value);
+            if(oneCanvas !== null || oneCanvas !== undefined || oneCanvas !== ""){
+                if(oneCanvas.value !== null && oneCanvas.value !== "" && oneCanvas.value.includes("=>")){
+                    arrPathCanvas = oneCanvas.value.split("=>");// 一つ一つの親子要素について配列順に入れなおす
+                    var candyElements;
 
-                if(oneCanvas.value && oneCanvas.value.includes("=>"))
-                arrPathCanvas = oneCanvas.value.split("=>");// 一つ一つの親子要素について配列順に入れなおす
-                var targetROOT = arrPathCanvas[0];// 一番最初の親要素
-                var candyElements;
-                if(arrPathCanvas === [])
-                for(var q = 0; q < arrPathCanvas.length; q++){
-                    var idMatch = regexpID.test(targetROOT);
-                    var clsMatch = regexpCLS.test(targetROOT);
-                    var tagMatch = regexpTAG.test(targetROOT);
-                    if(idMatch)
-                    {
-                        let idWord = regexpID.exec(targetROOT);
-                        targetElem = document.getElementById(idWord[1]);// 正規表現の二つ目の要素が()に入っている値を取得
-                    }else if(clsMatch){
-                        let classWord = regexpCLS.exec(targetROOT);
-                        candyElements = document.getElementsByClassName(classWord[1]);
-                        if(idWord[2] != "")
-                        {
-                            targetElem = candyElements[parseInt(idWord[2])];//　IDからとれる場合は、さかのぼってクラスの配列から取得
-                        }else{
-                            targetElem = candyElements;
+                    console.log("oneCanvas.value: " + oneCanvas.value);
+                    if(arrPathCanvas !== []){
+                        for(var q = 0; q < arrPathCanvas.length; q++){
+                            if(arrPathCanvas[q] === null)
+                                break;
+                            var idMatch = regexpID.exec(arrPathCanvas[q]);
+                            console.log("arrPathCanvas: " + arrPathCanvas);
+                            var matchStr = arrPathCanvas[q];
+                            console.log(typeof arrPathCanvas[q]);
+                            console.log("matchStr" + matchStr);
+                            var clsMatch = regexpCLS.exec(matchStr);
+                            console.log("clsMatch : " + clsMatch);
+                            var tagMatch = regexpTAG.exec(arrPathCanvas[q]);
+                            if(idMatch)
+                            {
+                                let idWord = regexpID.exec(arrPathCanvas[q]);
+                                targetElem = document.getElementById(idWord[1]);// 正規表現の二つ目の要素が()に入っている値を取得
+                            }
+                            if(clsMatch){
+                                console.log("classにはいったよ!");
+                                clsMatch = clsMatch[1].split(' ');
+
+                                for(var i = 0; i < clsMatch.length; i++){
+                                    console.log(" clsMatch "+clsMatch[i]);
+                                    if(clsMatch !== ""){
+                                        if(document.getElementsByClassName(clsMatch[i]).length !== 1){
+
+                                            var clsArrNum = /(.+)\[(\d+)\]/g;
+                                            var num = clsArrNum.exec(clsMatch[i]);
+                                            if(num){
+                                                console.log("classArrNum:" + num[1] + num[2]);
+                                            }
+                                            
+                                            targetElem = document.getElementsByClassName(num[1])[num[2]];
+                                        }else{
+                                            targetElem = document.getElementsByClassName(clsMatch[0]);
+                                        }
+                                    }
+                                }
+                            }
+                            //if(q !== arrPathCanvas.length){
+                                if(tagMatch){
+
+                                    var arrTagName = [];
+                                    var remaingIndex = 0;
+
+                                    //if(tagMatch.indexOf("IMG")){
+                                    //    break;
+                                    //}else{
+                                    /*for(var v = q; v < arrPathCanvas.length; v++)
+                                    { // タグの配列に直す
+                                        // 正規表現でタグ名取得する
+                                        arrTagName[remaingIndex] = arrPathCanvas[v];
+                                        remaingIndex++;
+                                    }*/
+                                    targetElem = targetTAGChildParser(targetElem, arrTagName, "IMG");
+                                    //targetElem = targetTAGParentParser(targetElem, arrTagName, "IMG");
+                                
+                                    //}
+
+                                targetROOT = arrPathCanvas[q+1];// 次の子の要素をセット　この時にtargetElemには目的の子要素までの実際の要素が入っている
+                                }   
+                            //}
                         }
-                    }else if(tagMatch){
-                        var arrTagName = [];
-                        var remaingIndex = 0;
-                        for(var v = q; v < arrPathCanvas.length; v++)
-                        { // タグの配列に直す
-                            // 正規表現でタグ名取得する
-                            arrTagName[remaingIndex] = arrPathCanvas[v];
-                            remaingIndex++;
-                        }
-                        targetElem = targetTAGChildParser(targetElem, arrTagName, "IMG");
-                        break;
-                    }else if(targetElem.style.backgroundImage !== null){
-                        imageOrNot = false;
-                        break;
                     }
-                    targetROOT = arrPathCanvas[q+1];// 次の子の要素をセット　この時にtargetElemには目的の子要素までの実際の要素が入っている
-
                 }else{
-                    targetElem = document.getElementsByClassName("active_pre_process")[0];
+                    console.log("active_pre_process Match Error");
+
+                
                 }
             }
             // 上記で取得したIMGタグについてCANVASタグを設定
 
             new_canvas = document.createElement('canvas');
-
+            console.log("CANVAS設定前のtargetElem:" + targetElem);
             if(targetElem){
                 console.log("CANVAS設定");
                 installed = targetElem.parentNode;
                 installed.appendChild(new_canvas);
+
                 targetElem.id = "targetImage";
 
                 targetImage = document.getElementById('targetImage');
@@ -960,18 +1151,18 @@ class CustomHeaderPhotoLinker
     
             //これは場所の座標のテキストフィールド　全てに実施
             for(var i = 0; i < arrShapes.length; i++){
-                if(arrShapes[i].includes(','))
+                if(arrShapes[i] && arrShapes[i].includes(','))
                 //var icon = iconReIndex(i+1);
-                loadShapePositions(arrIndex, pointX, pointY);
+                loadShapePositions(arrIndex + 1, pointX, pointY);
                 console.log("***");
             }
         }, false);
-        
+        /*
         var intervalId = setInterval( function(){
             resizePhoto();
             clearInterval( intervalId ) ;
         }, 500 );
-    
+        */
     
     
         document.addEventListener("DOMContentLoaded", function(){
@@ -1059,7 +1250,8 @@ class CustomHeaderPhotoLinker
                 var rect = e.target.getBoundingClientRect();
                 var elementUnderMouse = document.elementFromPoint(rect.left, rect.top);
                 
-                if(setAddPoint){ lastFocusField.value= "" + rect.left + ", " + rect.top;
+                if(setAddPoint){ 
+                    lastFocusField.value= "" + rect.left + ", " + rect.top;
                 }
                 setAddPoint = false;
 
@@ -1073,18 +1265,21 @@ class CustomHeaderPhotoLinker
     
                 var nodeChain = elementUnderMouse;
                 //elementUnderMouse.style.backgroundColor = "#FFFF00";
-                nodeChain.classList.toggle("active_pre_process");
-
+                if(nodeChain !== null){
+                    nodeChain.classList.toggle("active_pre_process");
+                }
 
                 lastFocusImgField.value = "";
-                while(true){
+                while(true && nodeChain !== null){
     
-                    if(lastFocusImgField.value.length > 0){
-                        lastFocusImgField.value += "=>";
-                    }
+                
                     if(nodeChain.tagName){
-                        lastFocusImgField.value = "{\$tag:" + nodeChain.nodeName + "}" + lastFocusImgField.value;
+                        if(lastFocusImgField.value !== "")
+                        lastFocusImgField.value = "{\$tag:" + nodeChain.nodeName + "}" + "=>" + lastFocusImgField.value;
                         //　要素を繰り上がる
+                        else
+                        lastFocusImgField.value = "{\$tag:" + nodeChain.nodeName + "}";
+
                     }
                     if(nodeChain.id !== null && nodeChain.id !== undefined && nodeChain.id)
                     {
@@ -1093,17 +1288,23 @@ class CustomHeaderPhotoLinker
                     }
                     if(nodeChain.className !== null && nodeChain.className !== undefined && nodeChain.className){
                         let doc = document.getElementsByClassName(nodeChain.className);
+                        console.log("class name: " + nodeChain.className);
                         doc = [].slice.call(doc);
                         //let idx = doc.indexOf(e.target);
                         let idx = doc.indexOf(elementUnderMouse);
-                        lastFocusImgField.value = "{\$cls:" + nodeChain.className + "[" + idx + "]" + "}" + lastFocusImgField.value;
-                        break;
+                        if(nodeChain.className !== "active_pre_process"){
+                            if(idx > 0)
+                            lastFocusImgField.value = "{\$cls:" + nodeChain.className + "[" + idx + "]" + "}" + lastFocusImgField.value;                    
+                            else
+                            lastFocusImgField.value = "{\$cls:" + nodeChain.className + "}" + lastFocusImgField.value;
+                            break;
+                        }
                     }
                     nodeChain = nodeChain.parentNode;
     
                 }
                 //対象のタグが上記で取得できないときは子要素を走査し、該当タグを探す
-                console.log(lastFocusImgField.value);
+                /*console.log(lastFocusImgField.value);
                 if(lastFocusImgField.value.includes("IMG")){
                     lastFocusImgField.value = scanChildElems(elementUnderMouse, "IMG", "", "min", 0);
                 }
@@ -1125,7 +1326,7 @@ class CustomHeaderPhotoLinker
                         }
                     }
                     nodeChain = nodeChain.parentNode;
-                }
+                }*/
                 imgFieldOnOff = false;
                 window.parent.document.getElementById("_customize-input-my_control").value = lastFocusImgField.value;
                 initCanvasField(); // 再設定
