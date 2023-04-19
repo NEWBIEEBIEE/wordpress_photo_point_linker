@@ -752,12 +752,12 @@ class CustomHeaderPhotoLinker
     
             //　タグ名追加
             if(elem.nodeName){
-                // addedTagAttr += "{\$tag:" + elem.tagName + "}";
-                addedTagAttr += "{\$tag:" + elem.nodeName + "}";
+                // addedTagAttr += "{\#tag:" + elem.tagName + "}";
+                addedTagAttr += "{\#tag:" + elem.nodeName + "}";
             }
             // id名追加
             if(elem.id){
-                addedTagAttr += "{\$id:" + elem.id + "}";
+                addedTagAttr += "{\#id:" + elem.id + "}";
                 if(addedPath !== ""){
                     addedTagAttr = addedTagAttr + "=>" + addedPath;
                 }
@@ -772,7 +772,7 @@ class CustomHeaderPhotoLinker
                     idx = i;
                 }
                 //let idx = doc.indexOf(elem);
-                addedTagAttr += "{\$cls:" + elem.className + "[" + idx + "]" + "}";
+                addedTagAttr += "{\#cls:" + elem.className + "[" + idx + "]" + "}";
 
                 if(addedPath !== ""){
                     addedTagAttr = addedTagAttr + "=>" + addedPath;
@@ -842,19 +842,22 @@ class CustomHeaderPhotoLinker
         function initCanvasField(){
 
             console.log("initCanvasField");
-            const regexpID = /\{\$id:(.+)\}/;
-            const regexpCLS = /\{\$cls:(.+)\[?(\d*)\]?\}\{/;
-            const regexpTAG = /\{\$tag:([A-Z]+)\[?(\d*)\]?\}/;
+            const regexpID = /\{\#id:(.+)\}/;
+            const regexpCLS = /\{\#cls:(.+)\[?(\d*)\]?\}\{/;
+            const regexpTAG = /\{\#tag:([A-Z]+)\[?(\d*)\]?\}/;
             var u = 0;
             var oneCanvas = {};
             if(window.parent.document.getElementById("_customize-input-my_control"))
             oneCanvas.value = window.parent.document.getElementById("_customize-input-my_control").value;// 修正必要
-            console.log("initCanvasField Onecanvas" + oneCanvas);
+            console.log("initCanvasField Onecanvas" + oneCanvas.value);
             // 上記に対してCANVASタグを追加する
             //まず対象を取得する
             //if(oneCanvas !== null || oneCanvas !== undefined || oneCanvas !== ""){
-                if(oneCanvas.value !== null && oneCanvas.value !== "" && oneCanvas.value.includes("=>")){
+                if(oneCanvas.value !== null && oneCanvas.value !== ""){
+                    if(oneCanvas.value.includes("=>"))
                     arrPathCanvas = oneCanvas.value.split("=>");// 一つ一つの親子要素について配列順に入れなおす
+                    else
+                    arrPathCanvas = [oneCanvas.value];
                     var candyElements;
                     if(arrPathCanvas !== []){
                         for(var q = 0; q < arrPathCanvas.length; q++){
@@ -967,9 +970,9 @@ class CustomHeaderPhotoLinker
         function initCanvasFieldOld(){
 
             console.log("initCanvasField");
-            const regexpID = /\{\$id:(.+)\}/;
-            const regexpCLS = /\{\$cls:(.+)\[?(\d*)\]?\}\{/;
-            const regexpTAG = /\{\$tag:([A-Z]+)\[?(\d*)\]?\}/;
+            const regexpID = /\{\#id:(.+)\}/;
+            const regexpCLS = /\{\#cls:(.+)\[?(\d*)\]?\}\{/;
+            const regexpTAG = /\{\#tag:([A-Z]+)\[?(\d*)\]?\}/;
             var u = 0;
             if(window.parent.document.getElementById("_customize-input-my_control"))
             oneCanvas = window.parent.document.getElementById("_customize-input-my_control");// 修正必要
@@ -1275,15 +1278,15 @@ class CustomHeaderPhotoLinker
                 
                     if(nodeChain.tagName){
                         if(lastFocusImgField.value !== "")
-                        lastFocusImgField.value = "{\$tag:" + nodeChain.nodeName + "}" + "=>" + lastFocusImgField.value;
+                        lastFocusImgField.value = "{\#tag:" + nodeChain.nodeName + "}" + "=>" + lastFocusImgField.value;
                         //　要素を繰り上がる
                         else
-                        lastFocusImgField.value = "{\$tag:" + nodeChain.nodeName + "}";
+                        lastFocusImgField.value = "{\#tag:" + nodeChain.nodeName + "}";
 
                     }
                     if(nodeChain.id !== null && nodeChain.id !== undefined && nodeChain.id)
                     {
-                        lastFocusImgField.value = "{\$id:" + nodeChain.id + "}" + lastFocusImgField.value;
+                        lastFocusImgField.value = "{\#id:" + nodeChain.id + "}" + lastFocusImgField.value;
                         break;
                     }
                     if(nodeChain.className !== null && nodeChain.className !== undefined && nodeChain.className){
@@ -1294,9 +1297,9 @@ class CustomHeaderPhotoLinker
                         let idx = doc.indexOf(elementUnderMouse);
                         if(nodeChain.className !== "active_pre_process"){
                             if(idx > 0)
-                            lastFocusImgField.value = "{\$cls:" + nodeChain.className + "[" + idx + "]" + "}" + lastFocusImgField.value;                    
+                            lastFocusImgField.value = "{\#cls:" + nodeChain.className + "[" + idx + "]" + "}" + lastFocusImgField.value;                    
                             else
-                            lastFocusImgField.value = "{\$cls:" + nodeChain.className + "}" + lastFocusImgField.value;
+                            lastFocusImgField.value = "{\#cls:" + nodeChain.className + "}" + lastFocusImgField.value;
                             break;
                         }
                     }
