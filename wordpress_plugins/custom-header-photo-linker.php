@@ -838,6 +838,10 @@ class CustomHeaderPhotoLinker
             return;
         }
 
+        function compareClassEach(clss1, clss2){
+
+
+        }
 
         // 文字列に入っている該当の要素から要素取得
         // canvas要素を追加する
@@ -869,20 +873,22 @@ class CustomHeaderPhotoLinker
                             console.log(typeof arrPathCanvas[q]);
                             console.log("matchStr" + matchStr);
                             var clsMatch = regexpCLS.exec(matchStr);
-                            console.log("clsMatch : " + clsMatch);
                             var tagMatch = regexpTAG.exec(arrPathCanvas[q]);
                             if(idMatch)
                             {
                                 let idWord = regexpID.exec(arrPathCanvas[q]);
+                                console.log("targetElem 正常代入");
                                 targetElem = document.getElementById(idWord[1]);// 正規表現の二つ目の要素が()に入っている値を取得
+                                
                             }
                             if(clsMatch){
-                                console.log("classにはいったよ!" + clsMatch);
+                                console.log("classにはいったよ!" + clsMatch[1]);
                                 clsMatch = clsMatch[1].split(' ');
 
                                 for(var i = 0; i < clsMatch.length; i++){
                                     console.log(" clsMatch "+clsMatch[i]);
                                     if(clsMatch !== ""){
+                                        console.log("document.getElementsByClassName(clsMatch[i]).length" + document.getElementsByClassName(clsMatch[i]).length);
                                         if(document.getElementsByClassName(clsMatch[i]).length > 1){
 
                                             var clsArrNum = /(.+)\[(\d+)\]/g;
@@ -891,10 +897,12 @@ class CustomHeaderPhotoLinker
                                                 console.log("classArrNum:" + num[1] + num[2]);
                                             
                                                 var targetElems = document.getElementsByClassName(num[1]);
+                                                console.log("targetElem 正常代入");
                                                 targetElem = targetElems[num[2]];
                                             }
                                         }else{
-                                            targetElem = document.getElementsByClassName(clsMatch[0]);
+                                            console.log("targetElem 正常代入");
+                                            targetElem = document.getElementsByClassName(clsMatch[1]);
                                         }
                                     }
                                 }
@@ -902,8 +910,8 @@ class CustomHeaderPhotoLinker
                             //if(q !== arrPathCanvas.length){
                                 if(tagMatch){
 
-                                    var arrTagName = [];
-                                    var remaingIndex = 0;
+                                    //var arrTagName = [];
+                                    //var remaingIndex = 0;
 
                                     //if(tagMatch.indexOf("IMG")){
                                     //    break;
@@ -911,15 +919,15 @@ class CustomHeaderPhotoLinker
                                     /*for(var v = q; v < arrPathCanvas.length; v++)
                                     { // タグの配列に直す
                                         // 正規表現でタグ名取得する
-                                        arrTagName[remaingIndex] = arrPathCanvas[v];
-                                        remaingIndex++;
+                                    //    arrTagName[remaingIndex] = arrPathCanvas[v];
+                                    //    remaingIndex++;
                                     }*/
-                                    targetElem = targetTAGChildParser(targetElem, arrTagName, "IMG");
+                                    //targetElem = targetTAGChildParser(targetElem, arrTagName, "IMG");
                                     //targetElem = targetTAGParentParser(targetElem, arrTagName, "IMG");
                                 
                                     //}
 
-                                targetROOT = arrPathCanvas[q+1];// 次の子の要素をセット　この時にtargetElemには目的の子要素までの実際の要素が入っている
+                                //targetROOT = arrPathCanvas[q+1];// 次の子の要素をセット　この時にtargetElemには目的の子要素までの実際の要素が入っている
                                 }   
                             //}
                         }
@@ -1250,7 +1258,7 @@ resizePhoto>putImageToCanvas
 生きていたくない。死を恵んでください。神様、仏様
 
 
-
+神は死を望んでるものを自ら手ずから殺すことなく、他人の手を幾らでも借りて殺しに来る。
 
 
 ------------------------------------------------以下、小説メモ----------------------------------------------------
@@ -1272,7 +1280,7 @@ resizePhoto>putImageToCanvas
 でもそれは、親でもなければ神様でもなかった。自分でも他人でもなかった。
 クラスで係を決めたときにお笑い係になったこともある。自分は他人から加害を加えられることでしかコミュニケーションを取ることができなかった。
 いじられているときはまだ。それはマシだった。だからそれでもそれが嫌だった。いじられる奴、俺はそういう風に思われたくなかったんだ。
-だから、できるだけ残酷であろうとした。
+だから、。。。。。。。
 
 親には話さないし、話しても理解しない。理解したとしても忘れて都合を押し付けるだけの存在だ。
 
