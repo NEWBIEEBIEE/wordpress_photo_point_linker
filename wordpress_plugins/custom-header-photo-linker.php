@@ -815,7 +815,7 @@ class CustomHeaderPhotoLinker
         function targetTAGChildParser(targetElem, remainTagArr, terminal){
             console.log("targetTAGChildParser");
             var elemBox = targetElem;
-            if(elemBox !== null && elemBox.tagName == terminal){
+            if(elemBox !== null && elemBox.tagName && elemBox.tagName == terminal){
     
                 return elemBox;
             }else if(elemBox !== null && elemBox.tagName == remainTagArr[0]){
@@ -839,135 +839,9 @@ class CustomHeaderPhotoLinker
         }
 
 
-        function initCanvasField(){
-
-            console.log("initCanvasField");
-            const regexpID = /\{\#id:(.+)\}/;
-            const regexpCLS = /\{\#cls:(.+)\[?(\d*)\]?\}\{/;
-            const regexpTAG = /\{\#tag:([A-Z]+)\[?(\d*)\]?\}/;
-            var u = 0;
-            var oneCanvas = {};
-            if(window.parent.document.getElementById("_customize-input-my_control"))
-            oneCanvas.value = window.parent.document.getElementById("_customize-input-my_control").value;// 修正必要
-            console.log("initCanvasField Onecanvas" + oneCanvas.value);
-            // 上記に対してCANVASタグを追加する
-            //まず対象を取得する
-            //if(oneCanvas !== null || oneCanvas !== undefined || oneCanvas !== ""){
-                if(oneCanvas.value !== null && oneCanvas.value !== ""){
-                    if(oneCanvas.value.includes("=>"))
-                    arrPathCanvas = oneCanvas.value.split("=>");// 一つ一つの親子要素について配列順に入れなおす
-                    else
-                    arrPathCanvas = [oneCanvas.value];
-                    var candyElements;
-                    if(arrPathCanvas !== []){
-                        for(var q = 0; q < arrPathCanvas.length; q++){
-                            var idMatch = regexpID.exec(arrPathCanvas[q]);
-                            console.log("arrPathCanvas: " + arrPathCanvas);
-                            var matchStr = arrPathCanvas[q];
-                            console.log(typeof arrPathCanvas[q]);
-                            console.log("matchStr" + matchStr);
-                            var clsMatch = regexpCLS.exec(matchStr);
-                            console.log("clsMatch : " + clsMatch);
-                            var tagMatch = regexpTAG.exec(arrPathCanvas[q]);
-                            if(idMatch)
-                            {
-                                let idWord = regexpID.exec(arrPathCanvas[q]);
-                                targetElem = document.getElementById(idWord[1]);// 正規表現の二つ目の要素が()に入っている値を取得
-                            }
-                            if(clsMatch){
-                                console.log("classにはいったよ!");
-                                clsMatch = clsMatch[1].split(' ');
-
-                                for(var i = 0; i < clsMatch.length; i++){
-                                    console.log(" clsMatch "+clsMatch[i]);
-                                    if(clsMatch !== ""){
-                               
-                                    }
-                                }
-                            }
-                            //if(q !== arrPathCanvas.length){
-                                if(tagMatch){
-
-                                    var arrTagName = [];
-                                    var remaingIndex = 0;
-
-                                    //if(tagMatch.indexOf("IMG")){
-                                    //    break;
-                                    //}else{
-                                    /*for(var v = q; v < arrPathCanvas.length; v++)
-                                    { // タグの配列に直す
-                                        // 正規表現でタグ名取得する
-                                        arrTagName[remaingIndex] = arrPathCanvas[v];
-                                        remaingIndex++;
-                                    }*/
-                                    targetElem = targetTAGChildParser(targetElem, arrTagName, "IMG");
-                                    //targetElem = targetTAGParentParser(targetElem, arrTagName, "IMG");
-                                
-                                    //}
-
-                                targetROOT = arrPathCanvas[q+1];// 次の子の要素をセット　この時にtargetElemには目的の子要素までの実際の要素が入っている
-                                }   
-                            //}
-                        }
-                    }
-                }else{
-                    console.log("active_pre_process Match Error");
-
-                }
-            // 上記で取得したIMGタグについてCANVASタグを設定
-
-            new_canvas = document.createElement('canvas');
-            console.log("CANVAS設定前のtargetElem:" + targetElem);
-            if(targetElem){
-                console.log("CANVAS設定");
-                installed = targetElem.parentNode;
-                installed.appendChild(new_canvas);
-
-                targetElem.id = "targetImage";
-
-                targetImage = document.getElementById('targetImage');
-                new_canvas.id = "icon_map";
-                installed.style.position = "relative";
-                new_canvas.style.position = "absolute";
-                new_canvas.style.position = "block";
-                new_canvas.style.zIndex = "999";
-                new_canvas.style.top = "0px";
-                new_canvas.style.left = "0px";
-                new_canvas.width = installed.offsetWidth;
-                new_canvas.height = installed.offsetHeight;
-                console.log("ここからCANVASデフォルトのサイズ");
-                console.log(new_canvas.width);
-                console.log(targetImage.width);
-                console.log(new_canvas.height);
-                console.log(targetImage.height);
-                new_canvas.addEventListener('load', function(){
-                    console.log("new_canvas_loaded");
-                    resizePhoto(targetImage);
-                    loadCanvas();
-                }, false);
-            
-                new_canvas.addEventListener('click', function(e){
-                    //resizePhoto();
-                    console.log("new_canvas_clicked");
-                    if(custom_mode && locPointSwitch){
-                        getCanvasPointXY(e);
-                        setXYPointToText(e);
-                        locPointSwitch = false;
-                    }
-                }, false);
-                if(!custom_mode)
-                new_canvas.addEventListener("mousedown", mouseDownListner, false);// canvas内のリンクに飛ばす
-                window.parent.addEventListener("mousedown", mouseDownListnerForm, false);// canvas内のリンクに飛ばす
-                //putImageToCanvas(targetElem,new_canvas.width, new_canvas.height);
-            }
-            
-
-            return new_canvas;
-        }
-
         // 文字列に入っている該当の要素から要素取得
         // canvas要素を追加する
-        function initCanvasFieldOld(){
+        function initCanvasField(){
 
             console.log("initCanvasField");
             const regexpID = /\{\#id:(.+)\}/;
@@ -1003,21 +877,22 @@ class CustomHeaderPhotoLinker
                                 targetElem = document.getElementById(idWord[1]);// 正規表現の二つ目の要素が()に入っている値を取得
                             }
                             if(clsMatch){
-                                console.log("classにはいったよ!");
+                                console.log("classにはいったよ!" + clsMatch);
                                 clsMatch = clsMatch[1].split(' ');
 
                                 for(var i = 0; i < clsMatch.length; i++){
                                     console.log(" clsMatch "+clsMatch[i]);
                                     if(clsMatch !== ""){
-                                        if(document.getElementsByClassName(clsMatch[i]).length !== 1){
+                                        if(document.getElementsByClassName(clsMatch[i]).length > 1){
 
                                             var clsArrNum = /(.+)\[(\d+)\]/g;
                                             var num = clsArrNum.exec(clsMatch[i]);
                                             if(num){
                                                 console.log("classArrNum:" + num[1] + num[2]);
-                                            }
                                             
-                                            targetElem = document.getElementsByClassName(num[1])[num[2]];
+                                                var targetElems = document.getElementsByClassName(num[1]);
+                                                targetElem = targetElems[num[2]];
+                                            }
                                         }else{
                                             targetElem = document.getElementsByClassName(clsMatch[0]);
                                         }
