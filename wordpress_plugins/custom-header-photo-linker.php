@@ -839,8 +839,14 @@ class CustomHeaderPhotoLinker
         }
 
         function compareClassEach(clss1, clss2){
-
-
+            for(var i = 0; clss1.length; i++){
+                for(var q = 0; clss2.length; q++){
+                    if(clss1[i] === clss2[q]) {
+                        return [i, q];
+                    }        
+                }
+            }
+            return [];// falseはあり得ない
         }
 
         // 文字列に入っている該当の要素から要素取得
@@ -890,7 +896,7 @@ class CustomHeaderPhotoLinker
                                     if(clsMatch !== ""){
                                         console.log("document.getElementsByClassName(clsMatch[i]).length" + document.getElementsByClassName(clsMatch[i]).length);
                                         if(document.getElementsByClassName(clsMatch[i]).length > 1){
-
+                                            console.log("class配列取得");
                                             var clsArrNum = /(.+)\[(\d+)\]/g;
                                             var num = clsArrNum.exec(clsMatch[i]);
                                             if(num){
@@ -1262,6 +1268,13 @@ resizePhoto>putImageToCanvas
 
 
 ------------------------------------------------以下、小説メモ----------------------------------------------------
+
+穿った考え方だろうか？病院の先生なら患者や他者から「許さないぞ」と言われても。客観的に自己の命の価値について証明する材料がある。
+俺にはそれがいつまでもなかった。他人からいじめられ津語の良い存在だった。例えば生きていればいいこともある、だからいつでもやり直せるだなんて
+自分が責めている存在がそう思っているなんて、誰も思わないだろう。自己の命に対して、他人の自己に対する命の価値が乖離しているだろうと思う。
+逆に他人が責めて自分に対してそう思うことを、自分でもそう思うようにしていたら、これは自分の命に対して他人が思うものや尊厳の踏みにじりにそうとしか思っていないことに近づいてると言っていいのではないか？
+だから、大量虐殺が起きる。鉄砲玉のような命だ。それが向けるべきべき人間に対して向いてない。
+
 
 川端紗記、お前は自分がそうしておきながら、相手がそれを自分にするのが許せない癖に
 白黒はっきりつけろだの偉そうに抜かす性格だったな。
