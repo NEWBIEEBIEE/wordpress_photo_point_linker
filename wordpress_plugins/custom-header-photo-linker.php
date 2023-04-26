@@ -421,6 +421,7 @@ class CustomHeaderPhotoLinker
         var imgCurWH = new Array(indexNum);
         // 対象画像領域指定オンオフ
         var imgFieldOnOff = false;
+        let idx = -1;
 
         // ボタン
         var titleBtn;
@@ -770,14 +771,15 @@ class CustomHeaderPhotoLinker
                 return addedTagAttr;
             }
             // class名追加
+            
             if(elem.className){
                 let doc = document.getElementsByClassName(elem.className);
-                let idx = 0;
+                idx = -1;
                 for(var i = 0; i < doc.length; i++){
                     if(doc[i] ===  elem)
                     idx = i;
                 }
-                //let idx = doc.indexOf(elem);
+                idx = doc.indexOf(elem);
                 addedTagAttr += "{\#cls:" + elem.className + "[" + idx + "]" + "}";
 
                 if(addedPath !== ""){
@@ -877,7 +879,7 @@ class CustomHeaderPhotoLinker
                             arrTagPathCanvas.push(tagMatch[1]);
                         }
                     }
-
+                    console.log("arrTagPathCanvas:" + arrTagPathCanvas);
                     console.log("oneCanvas.value: " + oneCanvas.value);
                     if(arrPathCanvas !== []){
                         console.log("条件分岐2通過");
@@ -923,6 +925,7 @@ class CustomHeaderPhotoLinker
                                                 targetElems = [].slice.call(targetElems);
                                                 targetElem = targetElems[num[2]];
                                             }else{
+                                                console.log("特定できているか？");
                                                 targetElem = document.getElementsByClassName(tarFromCls);
                                             }
                                             if(targetElem.tagName !== "IMG"){
@@ -936,6 +939,7 @@ class CustomHeaderPhotoLinker
                                 }
                             }
                             if(tagMatch){
+
                                 var arrTagName = [];
                                 var remaingIndex = 0;
                                 for(var v = q; v < arrPathCanvas.length; v++)
@@ -946,7 +950,7 @@ class CustomHeaderPhotoLinker
                                 }
                                 targetElem = targetTAGChildParser(targetElem, arrTagName, "IMG");
                                 //targetElem = targetTAGParentParser(targetElem, arrTagName, "IMG");
-                            
+                                break;
                                 //}
 
                             //targetROOT = arrPathCanvas[q+1];// 次の子の要素をセット　この時にtargetElemには目的の子要素までの実際の要素が入っている
@@ -962,9 +966,16 @@ class CustomHeaderPhotoLinker
 
                 new_canvas = document.createElement('canvas');
                 console.log("CANVAS設定前のtargetElem:" + targetElem);
+                if(targetElem !== undefined)
+                for(var i = 0; i < targetElem.length; i++)
+                    console.log("CANVAS設定前のtargetElem:" + targetElem[i].tagName + targetElem[i].className);
+                else{
+
+                }
                 if(targetElem){
                     console.log("CANVAS設定");
                     installed = targetElem.parentNode;
+                    console.log(installed);
                     console.log("親のタグ名" + installed.tagName);
                     installed.appendChild(new_canvas);
 
@@ -1170,7 +1181,7 @@ class CustomHeaderPhotoLinker
                 
                 var rect = e.target.getBoundingClientRect();
                 var elementUnderMouse = document.elementFromPoint(rect.left, rect.top);
-                console.log(elementUnderMouse.id);
+                if(elementUnderMouse)
                 if(elementUnderMouse.id !== null && elementUnderMouse.id !== undefined){
                     if((elementUnderMouse.id).includes("_customize-description-my_loc")){
                         setAddPoint = true;
@@ -1201,7 +1212,7 @@ class CustomHeaderPhotoLinker
                 
                     if(nodeChain.tagName){
                         if(lastFocusImgField.value !== "")
-                        lastFocusImgField.value = "{\#tag:" + nodeChain.nodeName + "}" + "=>" + lastFocusImgField.value;
+                        lastFocusImgField.value = lastFocusImgField.value + "=>" + "{\#tag:" + nodeChain.nodeName + "}" ;
                         //　要素を繰り上がる
                         else
                         lastFocusImgField.value = "{\#tag:" + nodeChain.nodeName + "}";
@@ -1217,16 +1228,15 @@ class CustomHeaderPhotoLinker
                         console.log("class name: " + nodeChain.className);
                         doc = [].slice.call(doc);// argumentを配列に変える
                         //let idx = doc.indexOf(e.target);
-                        let idx = doc.indexOf(elementUnderMouse);
+                        idx = doc.indexOf(elementUnderMouse);
                         console.log("idx" + idx);
                         nodeChain.classList.remove("active_pre_process");
-                        if(nodeChain.className !== "active_pre_process" && nodeChain.className !== ""){
-                            if(idx > 0)
-                            lastFocusImgField.value = "{\#cls:" + nodeChain.className + "[" + idx + "]" + "}" + lastFocusImgField.value;                    
-                            else
-                            lastFocusImgField.value = "{\#cls:" + nodeChain.className + "}" + lastFocusImgField.value;
-                            break;
-                        }
+                        if(idx > 0)
+                        lastFocusImgField.value = "{\#cls:" + nodeChain.className + "[" + idx + "]" + "}" + lastFocusImgField.value;                    
+                        else
+                        lastFocusImgField.value = "{\#cls:" + nodeChain.className + "}" + lastFocusImgField.value;
+                        break;
+                        
                         nodeChain.classList.add("active_pre_process");
                     }
                     nodeChain = nodeChain.parentNode;
