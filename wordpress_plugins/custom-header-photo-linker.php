@@ -870,8 +870,9 @@ class CustomHeaderPhotoLinker
                     arrPathCanvas = oneCanvas.value.split("=>");// 一つ一つの親子要素について配列順に入れなおす
                     var candyElements;
                     arrTagPathCanvas = [];
-                    for(var i = 0; arrPathCanvas.length; i++){
-                        var tagMatch = regexpTAG.exec(arrPathCanvas[i]);
+                    for(var o = 0; arrPathCanvas.length; o++){
+                        console.log("for文1通過" + o);
+                        var tagMatch = regexpTAG.exec(arrPathCanvas[o]);
                         if(tagMatch && tagMatch.length > 0){
                             arrTagPathCanvas.push(tagMatch[1]);
                         }
@@ -879,7 +880,9 @@ class CustomHeaderPhotoLinker
 
                     console.log("oneCanvas.value: " + oneCanvas.value);
                     if(arrPathCanvas !== []){
+                        console.log("条件分岐2通過");
                         for(var q = 0; q < arrPathCanvas.length; q++){
+                            console.log("for文2通過" + q);
                             if(arrPathCanvas[q] === null)
                                 break;
                             var idMatch = regexpID.exec(arrPathCanvas[q]);
@@ -896,10 +899,13 @@ class CustomHeaderPhotoLinker
                                 targetElem = document.getElementById(idWord[1]);// 正規表現の二つ目の要素が()に入っている値を取得
                                 
                             }
+
                             if(clsMatch){
+                                console.log("条件分岐3通過 (class)");
                                 clsMatch = clsMatch[1].split(' ');
                                 var tarFromCls = "";
                                 for(var i = 0; i < clsMatch.length; i++){
+                                    console.log("for文3通過" + i);
                                     console.log(" clsMatch "+clsMatch[i]);
                                     if(tarFromCls.length === 0) tarFromCls += clsMatch[i];
                                     else tarFromCls += " " + clsMatch[i];
