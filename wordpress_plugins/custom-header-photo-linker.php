@@ -870,7 +870,7 @@ class CustomHeaderPhotoLinker
                     arrPathCanvas = oneCanvas.value.split("=>");// 一つ一つの親子要素について配列順に入れなおす
                     var candyElements;
                     arrTagPathCanvas = [];
-                    for(var o = 0; arrPathCanvas.length; o++){
+                    for(var o = 0; o < arrPathCanvas.length; o++){
                         console.log("for文1通過" + o);
                         var tagMatch = regexpTAG.exec(arrPathCanvas[o]);
                         if(tagMatch && tagMatch.length > 0){
