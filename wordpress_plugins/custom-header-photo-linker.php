@@ -965,6 +965,7 @@ class CustomHeaderPhotoLinker
                 if(targetElem){
                     console.log("CANVAS設定");
                     installed = targetElem.parentNode;
+                    console.log("親のタグ名" + installed.tagName);
                     installed.appendChild(new_canvas);
 
                     targetElem.id = "targetImage";
@@ -1169,7 +1170,7 @@ class CustomHeaderPhotoLinker
                 
                 var rect = e.target.getBoundingClientRect();
                 var elementUnderMouse = document.elementFromPoint(rect.left, rect.top);
-                if(elementUnderMouse.id && elementUnderMouse.id.include("_customize-description-my_loc")){
+                if(elementUnderMouse.id !== null && elementUnderMouse.id.include("_customize-description-my_loc")){
                     setAddPoint = true;
                 }
                 if(setAddPoint){ 
