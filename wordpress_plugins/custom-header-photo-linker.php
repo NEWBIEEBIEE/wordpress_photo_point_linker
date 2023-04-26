@@ -1170,8 +1170,11 @@ class CustomHeaderPhotoLinker
                 
                 var rect = e.target.getBoundingClientRect();
                 var elementUnderMouse = document.elementFromPoint(rect.left, rect.top);
-                if(elementUnderMouse.id !== null && elementUnderMouse.id.include("_customize-description-my_loc")){
-                    setAddPoint = true;
+                console.log(elementUnderMouse.id);
+                if(elementUnderMouse.id !== null && elementUnderMouse.id !== undefined){
+                    if((elementUnderMouse.id).includes("_customize-description-my_loc")){
+                        setAddPoint = true;
+                    }
                 }
                 if(setAddPoint){ 
                     lastFocusField.value= "" + rect.left + ", " + rect.top;// 座標を入力
