@@ -1231,7 +1231,7 @@ class CustomHeaderPhotoLinker
                         idx = doc.indexOf(elementUnderMouse);
                         console.log("idx" + idx);
                         nodeChain.classList.remove("active_pre_process");
-                        if(idx > 0)
+                        if(idx > -1)
                         lastFocusImgField.value = "{\#cls:" + nodeChain.className + "[" + idx + "]" + "}" + lastFocusImgField.value;                    
                         else
                         lastFocusImgField.value = "{\#cls:" + nodeChain.className + "}" + lastFocusImgField.value;
