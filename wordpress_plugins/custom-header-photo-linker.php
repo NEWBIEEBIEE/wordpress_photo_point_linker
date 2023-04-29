@@ -1212,7 +1212,7 @@ class CustomHeaderPhotoLinker
                 
                     if(nodeChain.tagName){
                         if(lastFocusImgField.value !== "")
-                        lastFocusImgField.value = lastFocusImgField.value + "=>" + "{\#tag:" + nodeChain.nodeName + "}" ;
+                        lastFocusImgField.value = "{\#tag:" + nodeChain.nodeName + "}" + "=>" + lastFocusImgField.value;
                         //　要素を繰り上がる
                         else
                         lastFocusImgField.value = "{\#tag:" + nodeChain.nodeName + "}";
@@ -1231,11 +1231,14 @@ class CustomHeaderPhotoLinker
                         idx = doc.indexOf(elementUnderMouse);
                         console.log("idx" + idx);
                         nodeChain.classList.remove("active_pre_process");
-                        if(idx > -1)
-                        lastFocusImgField.value = "{\#cls:" + nodeChain.className + "[" + idx + "]" + "}" + lastFocusImgField.value;                    
-                        else
-                        lastFocusImgField.value = "{\#cls:" + nodeChain.className + "}" + lastFocusImgField.value;
-                        break;
+                        console.log("nodeChain.className:"+nodeChain.className);
+                        if(nodeChain.className !== "active_pre_process" && nodeChain.className !== ""){
+                            if(idx > -1)
+                            lastFocusImgField.value = "{\#cls:" + nodeChain.className + "[" + idx + "]" + "}" + lastFocusImgField.value;                    
+                            else
+                            lastFocusImgField.value = "{\#cls:" + nodeChain.className + "}" + lastFocusImgField.value;
+                            break;
+                        }
                         
                         nodeChain.classList.add("active_pre_process");
                     }
