@@ -974,7 +974,7 @@ class CustomHeaderPhotoLinker
                 }
                 if(targetElem){
                     console.log("CANVAS設定");
-                    installed = targetElem.parentNode;
+                    installed = targetElem[0].parentNode;
                     console.log(installed);
                     console.log("親のタグ名" + installed.tagName);
                     installed.appendChild(new_canvas);
@@ -993,9 +993,9 @@ class CustomHeaderPhotoLinker
                     new_canvas.height = installed.offsetHeight;
                     console.log("ここからCANVASデフォルトのサイズ");
                     console.log(new_canvas.width);
-                    console.log(targetImage.width);
+                    console.log(targetImage[0].width);
                     console.log(new_canvas.height);
-                    console.log(targetImage.height);
+                    console.log(targetImage[0].height);
                     new_canvas.addEventListener('load', function(){
                         console.log("new_canvas_loaded");
                         resizePhoto(targetImage);
