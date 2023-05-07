@@ -919,6 +919,7 @@ class CustomHeaderPhotoLinker
                                             var clsArrNum = /(.+)\[(\d+)\]/g;
                                             var num = clsArrNum.exec(clsMatch[i]);
                                             if(num){
+                                                console.log("通過したいところ通過");
                                                 console.log("classArrNum:" + num[1] + num[2]);
                                             
                                                 var targetElems = document.getElementsByClassName(num[1]);
@@ -979,7 +980,7 @@ class CustomHeaderPhotoLinker
                     console.log("親のタグ名" + installed.tagName);
                     installed.appendChild(new_canvas);
 
-                    targetElem.id = "targetImage";
+                    targetElem[0].id = "targetImage";
 
                     targetImage = document.getElementById('targetImage');
                     new_canvas.id = "icon_map";
@@ -993,9 +994,9 @@ class CustomHeaderPhotoLinker
                     new_canvas.height = installed.offsetHeight;
                     console.log("ここからCANVASデフォルトのサイズ");
                     console.log(new_canvas.width);
-                    console.log(targetImage[0].width);
+                    console.log(targetImage.width);
                     console.log(new_canvas.height);
-                    console.log(targetImage[0].height);
+                    console.log(targetImage.height);
                     new_canvas.addEventListener('load', function(){
                         console.log("new_canvas_loaded");
                         resizePhoto(targetImage);
@@ -1235,8 +1236,20 @@ class CustomHeaderPhotoLinker
                         if(nodeChain.className !== "active_pre_process" && nodeChain.className !== ""){
                             if(idx > -1)
                             lastFocusImgField.value = "{\#cls:" + nodeChain.className + "[" + idx + "]" + "}" + lastFocusImgField.value;                    
-                            else
-                            lastFocusImgField.value = "{\#cls:" + nodeChain.className + "}" + lastFocusImgField.value;
+                            else{
+                                 
+                                var domdoc = document.getElementsByClassName(nodeChain.className);
+                                if(domdoc.length > 1){
+                                    idx = 0;
+                                    for(var h = 0; h < domdoc.length; h++){
+                                        if(nodeChain === domdoc[h])
+                                        lastFocusImgField.value = "{\#cls:" + nodeChain.className + "[" + idx + "]" + "}" + lastFocusImgField.value;  
+                                        idx++;  
+                                    }
+                                }else{
+                                    lastFocusImgField.value = "{\#cls:" + nodeChain.className + "}" + lastFocusImgField.value;
+                                }
+                            }
                             break;
                         }
                         
