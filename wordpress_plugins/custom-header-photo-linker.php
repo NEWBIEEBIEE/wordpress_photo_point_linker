@@ -904,27 +904,31 @@ class CustomHeaderPhotoLinker
 
                             if(clsMatch){
                                 console.log("条件分岐3通過 (class)");
-                                clsMatch = clsMatch[1].split(' ');
+                                console.log("clsMatch[0]" + clsMatch[0]);
+                                console.log("clsMatch[1]" + clsMatch[1]);
+                                clsMatchs = clsMatch[1].split(' ');
                                 var tarFromCls = "";
-                                for(var i = 0; i < clsMatch.length; i++){
-                                    console.log("for文3通過" + i);
-                                    console.log(" clsMatch "+clsMatch[i]);
-                                    if(tarFromCls.length === 0) tarFromCls += clsMatch[i];
-                                    else tarFromCls += " " + clsMatch[i];
-                                    console.log("tarFromCls" + tarFromCls);
-                                    if(clsMatch !== ""){
-                                        console.log("document.getElementsByClassName(clsMatch[i]).length" + document.getElementsByClassName(clsMatch[i]).length);
-                                        if(document.getElementsByClassName(clsMatch[i]).length > 1){
+                                //for(var i = 0; i < clsMatchs.length; i++){
+                                    console.log("for文3通過");
+                                    //console.log(" clsMatchs "+clsMatchs[i]);
+                                    //if(tarFromCls.length === 0) tarFromCls += clsMatchs[i];
+                                    //else tarFromCls += " " + clsMatchs[i];
+                                    //console.log("tarFromCls" + tarFromCls);
+                                    if(clsMatchs !== ""){
+                                       // console.log("document.getElementsByClassName(clsMatchs[i]).length" + document.getElementsByClassName(clsMatchs[i]).length);
+                                        //if(document.getElementsByClassName(clsMatchs[i]).length > 1){
                                             console.log("class配列取得");
-                                            var clsArrNum = /(.+)\[(\d+)\]/g;
-                                            var num = clsArrNum.exec(clsMatch[i]);
+                                            var clsArrNum = /\[(\d+)\]/;
+                                            var num = clsArrNum.exec(clsMatchs[1]);
+                                            tarClassName = clsMatch[1].replace(clsArrNum, "");
+                                            console.log("tarClassName " + tarClassName);
                                             if(num){
                                                 console.log("通過したいところ通過");
-                                                console.log("classArrNum:" + num[1] + num[2]);
+                                                console.log("classArrNum:" + num[1]);
                                             
-                                                var targetElems = document.getElementsByClassName(num[1]);
+                                                var targetElems = document.getElementsByClassName(tarClassName);
                                                 targetElems = [].slice.call(targetElems);
-                                                targetElem = targetElems[num[2]];
+                                                targetElem = targetElems[num[1]];
                                             }else{
                                                 console.log("特定できているか？");
                                                 targetElem = document.getElementsByClassName(tarFromCls);
@@ -933,11 +937,11 @@ class CustomHeaderPhotoLinker
 
                                                 break;
                                             }
-                                        }else{
-                                            console.log("クラスから要素取得できませんでした。");
-                                        }
+                                        //}else{
+                                        //    console.log("クラスから要素取得できませんでした。");
+                                        //}
                                     }
-                                }
+                                //}
                             }
                             if(tagMatch){
 
@@ -975,12 +979,12 @@ class CustomHeaderPhotoLinker
                 }
                 if(targetElem){
                     console.log("CANVAS設定");
-                    installed = targetElem[0].parentNode;
+                    installed = targetElem.parentNode;
                     console.log(installed);
                     console.log("親のタグ名" + installed.tagName);
                     installed.appendChild(new_canvas);
 
-                    targetElem[0].id = "targetImage";
+                    targetElem.id = "targetImage";
 
                     targetImage = document.getElementById('targetImage');
                     new_canvas.id = "icon_map";
