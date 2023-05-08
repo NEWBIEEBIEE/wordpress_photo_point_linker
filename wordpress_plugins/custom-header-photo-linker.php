@@ -532,6 +532,10 @@ class CustomHeaderPhotoLinker
             icon_height = element.naturalHeight;
             return array(icon_width, icon_height);
         }
+        window.addEventListener( 'load', function () {
+            console.log("window load");
+        }, false );
+
 
 
 
@@ -865,6 +869,7 @@ class CustomHeaderPhotoLinker
             // 上記に対してCANVASタグを追加する
             //まず対象を取得する
             console.log("条件分岐1");
+            console.log("oneCanvas" + oneCanvas);
             if(oneCanvas !== null || oneCanvas !== undefined || oneCanvas !== ""){
                 
                 if(oneCanvas.value !== null && oneCanvas.value !== "" && oneCanvas.value.includes("=>")){
@@ -933,7 +938,7 @@ class CustomHeaderPhotoLinker
                                                 console.log("特定できているか？");
                                                 targetElem = document.getElementsByClassName(tarFromCls);
                                             }
-                                            if(targetElem.tagName !== "IMG"){
+                                            if(targetElem.tagName === "IMG"){
 
                                                 break;
                                             }
@@ -962,7 +967,7 @@ class CustomHeaderPhotoLinker
                             }   
                         }
                     }
-                }else{
+                }else if(oneCanvas.value !== null && oneCanvas.value !== ""){
                     console.log("active_pre_process Match Error");
 
                 
