@@ -1438,6 +1438,13 @@ resizePhoto>putImageToCanvas
 大橋は使い分けが上手かった。俺以外の外部の人間がいるときは優等生や被害者になりきり、二人きりになったときには脅迫や恫喝に講じた
 
 
+・出口加奈子
+https://rikeinavi.com/int/contents/magazine/img/pdf15g/15girls_1213.pdf
+
+
+
+
+
 
 
 
