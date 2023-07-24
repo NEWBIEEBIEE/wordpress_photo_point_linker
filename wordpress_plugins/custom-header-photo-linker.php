@@ -1517,6 +1517,10 @@ resizePhoto>putImageToCanvas
 
 ・清野（女）
 
+・坂東
+
+・渡部志穂
+
 ・大舘
 
 ・中田さやか
