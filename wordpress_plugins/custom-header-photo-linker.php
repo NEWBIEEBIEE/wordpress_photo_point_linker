@@ -1570,6 +1570,8 @@ resizePhoto>putImageToCanvas
 
 ・加村先生
 
+・新井（女）やその友人
+
 ・その他高校・中学の同級生
 
 ・大学の同級生・空手部
