@@ -1525,6 +1525,10 @@ resizePhoto>putImageToCanvas
 
 ・加村先生
 
+・その他高校・中学の同級生
+
+・大学の同級生・空手部
+
 ・出口加奈子
 https://rikeinavi.com/int/contents/magazine/img/pdf15g/15girls_1213.pdf
 １４歳の女の子をレイプして堕胎させたと嘘を吹聴した。
