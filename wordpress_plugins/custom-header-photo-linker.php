@@ -478,14 +478,7 @@ class CustomHeaderPhotoLinker
             console.log("iconImg.src:" + document.getElementById("photo_path" + index).value);
             //return [iconImg.src, iconImg.naturalWidth, iconImg.naturalHeight];
         }
-        // 座標を取得 使われていない　下記関数のみ
-        function point_location(id){
-            var hid_size = document.getElementById("point_loc"+id).value;
-            var ver_hor = hid_size.split(',');
-            pre_vertical = parseFloat(ver_hor[0].trim());
-            pre_horizonal = parseFloat(ver_hor[1].trim());
 
-        }
         // 現在のCanvasの大きさに対して拡大・縮小が必要ならば拡大・縮小時に縦横に対して正方形の形でアイコン画像の拡大・縮小をする
         function photoMag(id){
             point_location(id);
@@ -515,7 +508,7 @@ class CustomHeaderPhotoLinker
         function pointGetter(id){
             var po_loc = document.getElementById("point_loc"+id).value;
             var raw_point_x_y = po_loc.split(',');
-            var point_x_y = [parseFloat(raw_point_x_y[0].trim()), parseFloat(raw_point_x_y[1].trim())];
+            var point_x_y = [parseFloat(raw_point_x_y[0].trim()), parseFloat(raw_point_x_ytestContext[1].trim())];
             return point_x_y;
         }
         // 現在のcanvasの実際の大きさ
@@ -534,6 +527,17 @@ class CustomHeaderPhotoLinker
         }
         window.addEventListener( 'load', function () {
             console.log("window load");
+            var attached = document.getElementById("icon_map");
+            testContext = attached.getContext("2d");
+            for(var i = 1; i <= indexNum; i++){
+                console.log("for文は言っているよ～");
+                var img = new Image();
+                var local_photo_loc = document.getElementById("photo_path" + i);
+                img.src = local_photo_loc.value;
+                var canvas_photo_loc = window.parent.document.getElementById("_customize-input-my-loc" + i);
+
+                testContext.drawImage(img, parseFloat(canvas_photo_loc.split(',')[0]), parseFloat(canvas_photo_loc.split(',')[1]), width, height);
+            }
         }, false );
 
 
@@ -629,7 +633,7 @@ class CustomHeaderPhotoLinker
             console.log(imgUrl);
             if(testContext){
                  /*testContext.drawImage(icon_inst, (posX + parseFloat(cvsStyle.width.replace("px",""))), (posY + parseFloat(cvsStyle.height.replace("px",""))));*/
-                 testContext.drawImage(icon_inst, posX, posY);
+                 testContext.drawImage(coin_inst, posX, posY);
                  document.getElementById("point_loc" + (index)).value = posX + "," + posY;
                 }
         }
@@ -1108,8 +1112,6 @@ class CustomHeaderPhotoLinker
         function windowDomLoaded(){
             // 画像要素キャンパスの追加　一番最初に必要
 
-
-            document.getElementById('icon_map').remove(); 
             
             console.log("読み込み完了");
             new_canvas = initCanvasField();
@@ -1571,7 +1573,7 @@ resizePhoto>putImageToCanvas
 大橋がセンター試験時にヒステリーを起こさせたとき、清水さんに「何か隠しているぞ？よく見ていろ」といったことで、それ自体でどちらかが加害者なのが明白でもあるにもかかわらず、
 清水さんはそれを無視した。
 
-・清水
+・清水萌子
 予備校の国語の教師に俺がレイプ犯だと吹聴した。俺はその時家庭がおばあちゃんの介護で苦しかったのに。予備校の講師からは「気持ち悪いんだよお前と言われた。」
 
 ・末広
