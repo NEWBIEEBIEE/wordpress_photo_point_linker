@@ -1099,10 +1099,18 @@ class CustomHeaderPhotoLinker
             clearInterval( intervalId ) ;
         }, 500 );
         */
-    
+        
+        function reTouchImage(){
+
+
+        }
     
         function windowDomLoaded(){
             // 画像要素キャンパスの追加　一番最初に必要
+
+
+            document.getElementById('icon_map').remove(); 
+            
             console.log("読み込み完了");
             new_canvas = initCanvasField();
 
@@ -1564,6 +1572,7 @@ resizePhoto>putImageToCanvas
 清水さんはそれを無視した。
 
 ・清水
+予備校の国語の教師に俺がレイプ犯だと吹聴した。俺はその時家庭がおばあちゃんの介護で苦しかったのに。予備校の講師からは「気持ち悪いんだよお前と言われた。」
 
 ・末広
 
