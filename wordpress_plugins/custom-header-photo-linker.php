@@ -527,16 +527,22 @@ class CustomHeaderPhotoLinker
         }
         window.addEventListener( 'load', function () {
             console.log("window load");
-            var attached = document.getElementById("icon_map");
-            testContext = attached.getContext("2d");
-            for(var i = 1; i <= indexNum; i++){
-                console.log("for文は言っているよ～");
-                var img = new Image();
-                var local_photo_loc = document.getElementById("photo_path" + i);
-                img.src = local_photo_loc.value;
-                var canvas_photo_loc = window.parent.document.getElementById("_customize-input-my-loc" + i);
-
-                testContext.drawImage(img, parseFloat(canvas_photo_loc.split(',')[0]), parseFloat(canvas_photo_loc.split(',')[1]), width, height);
+            if(document.getElementById("icon_map") !== null){
+                var attached = document.getElementById("icon_map");
+                testContext = attached.getContext("2d");
+                for(var i = 1; i <= indexNum; i++){
+                    console.log("for文は言っているよ～");
+                    if(true){
+                        var img = new Image();
+                        var local_photo_loc = document.getElementById("photo_path" + i);
+                        img.src = local_photo_loc.value;
+                        var canvas_photo_loc = document.getElementById(point_loc + arrIndex - 1).value;
+                        console.log(canvas_photo_loc);
+                        if(canvas_photo_loc.IndexOf(",")){
+                            testContext.drawImage(img, parseFloat(canvas_photo_loc.split(',')[0]), parseFloat(canvas_photo_loc.split(',')[1]), width, height);
+                        }
+                    }
+                }
             }
         }, false );
 
@@ -586,6 +592,7 @@ class CustomHeaderPhotoLinker
                         lastFocusField.value = pointX / parseFloat(cvsStyle.width.replace("px","")) + ',' + pointY / parseFloat(cvsStyle.height.replace("px",""));
                         var arrIndex = (parseFloat(lastFocusField.id.replace('_customize-input-my_loc', ''), 10));
                         arrShapes[arrIndex - 1] = lastFocusField.value;
+                        document.getElementById(point_loc + arrIndex - 1).value = lastFocusField.value;
                         console.log("lastFocusField.value" + lastFocusField.value);
                         console.log("arrShapes:" + arrShapes);
                     }
@@ -633,7 +640,7 @@ class CustomHeaderPhotoLinker
             console.log(imgUrl);
             if(testContext){
                  /*testContext.drawImage(icon_inst, (posX + parseFloat(cvsStyle.width.replace("px",""))), (posY + parseFloat(cvsStyle.height.replace("px",""))));*/
-                 testContext.drawImage(coin_inst, posX, posY);
+                 testContext.drawImage(icon_inst, posX, posY);
                  document.getElementById("point_loc" + (index)).value = posX + "," + posY;
                 }
         }
@@ -727,6 +734,7 @@ class CustomHeaderPhotoLinker
                 lastHeight = parseFloat(cvsStyle.height.replace("px",""));
                 lastFocusField.value = pointX / lastWidth + ',' + pointY / lastHeight;
                 var arrIndex = (parseFloat(lastFocusField.id.replace('_customize-input-my_loc', ''), 10));
+                document.getElementById(point_loc + arrIndex - 1).value = lastFocusField.value;
                 arrShapes[arrIndex-1] = lastFocusField.value;// 
 
                 // arrIndexのImgUrlからImageクラスを生成する処理
@@ -990,7 +998,7 @@ class CustomHeaderPhotoLinker
                     console.log("CANVAS設定");
                     installed = targetElem.parentNode;
                     console.log(installed);
-                    console.log("親のタグ名" + installed.tagName);
+                    //console.log("親のタグ名" + installed.tagName);
                     installed.appendChild(new_canvas);
 
                     targetElem.id = "targetImage";
