@@ -531,15 +531,14 @@ class CustomHeaderPhotoLinker
                 var attached = document.getElementById("icon_map");
                 testContext = attached.getContext("2d");
                 for(var i = 1; i <= indexNum; i++){
-                    console.log("for文は言っているよ～");
                     if(true){
                         var img = new Image();
                         var local_photo_loc = document.getElementById("photo_path" + i);
                         img.src = local_photo_loc.value;
-                        var canvas_photo_loc = document.getElementById(point_loc + arrIndex - 1).value;
-                        console.log(canvas_photo_loc);
-                        if(canvas_photo_loc.IndexOf(",")){
-                            testContext.drawImage(img, parseFloat(canvas_photo_loc.split(',')[0]), parseFloat(canvas_photo_loc.split(',')[1]), width, height);
+                        var canvas_photo_loc = document.getElementById("point_loc" + i).value;
+                        console.log(img.src);
+                        if(canvas_photo_loc.indexOf(",")){
+                            testContext.drawImage(img, parseFloat(canvas_photo_loc.split(',')[0]), parseFloat(canvas_photo_loc.split(',')[1]), img.width, img.height);
                         }
                     }
                 }
